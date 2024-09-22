@@ -1,4 +1,5 @@
 "use client";
+export const runtime = "edge";
 import PlayGame from "@/components/play-game";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

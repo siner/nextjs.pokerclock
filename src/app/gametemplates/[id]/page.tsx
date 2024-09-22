@@ -1,4 +1,5 @@
 "use client";
+export const runtime = "edge";
 import { GameTemplate } from "@/types";
 import GameTemplateForm from "../gametemplate-form";
 import { Button } from "@/components/ui/button";
