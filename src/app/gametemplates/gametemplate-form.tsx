@@ -184,7 +184,7 @@ export default function GameTemplateForm({
 
   return (
     <>
-      <div className="grid gap-6">
+      <div className="grid w-full gap-6">
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1">
             <Label htmlFor="buyin">Nombre</Label>
@@ -328,10 +328,10 @@ export default function GameTemplateForm({
           <h2 className="mb-4 text-xl font-bold">Niveles</h2>
           <div className="mb-4 flex flex-col space-y-3">
             <div className="grid grid-cols-5 gap-3">
-              <span>SB</span>
-              <span>BB</span>
+              <span>Ciega pequeña</span>
+              <span>Ciega grande</span>
               <span>Ante</span>
-              <span>Time</span>
+              <span>Minutos</span>
               <span></span>
             </div>
             {levels.map((level, index) => (
@@ -403,7 +403,7 @@ export default function GameTemplateForm({
                     key={index}
                     type="number"
                     name="maxplayers"
-                    placeholder="Max players"
+                    placeholder="Jugadores"
                     className="w-32"
                     defaultValue={prizeStructure.max_players}
                     onChange={(e) => manageInputMaxPlayersChange(index, e)}

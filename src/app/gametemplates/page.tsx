@@ -12,9 +12,9 @@ export default async function AllGameTemplates() {
         </Button>
       </div>
       <div className="mb-4 flex flex-row items-center justify-between space-x-4">
-        <h1 className="text-3xl font-bold">Plantillas de partidas</h1>
+        <h1 className="text-3xl font-bold">Plantillas</h1>
         <Button size="lg">
-          <Link href="/gametemplates/create">Nueva plantilla</Link>
+          <Link href="/gametemplates/create">Nueva</Link>
         </Button>
       </div>
       <GameTemplatesTable />

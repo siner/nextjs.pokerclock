@@ -18,9 +18,13 @@ import {
 } from "@/components/ui/select";
 import {
   DatabaseIcon,
+  FastForward,
   MinusIcon,
+  PauseIcon,
+  PlayIcon,
   PlusIcon,
   RotateCcw,
+  SquareIcon,
   UsersIcon,
 } from "lucide-react";
 import {
@@ -32,10 +36,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 const Notification = "/notification.mp3";
+import { useSearchParams } from "next/navigation";
 
 export default function PlayGame() {
   const { toast } = useToast();
   const audioPlayer = useRef(null);
+
+  const searchParams = useSearchParams();
+
+  const queryTemplate = searchParams.get("template");
 
   function playAudio() {
     if (audioPlayer.current) {
@@ -67,6 +76,10 @@ export default function PlayGame() {
         setLevels(currentGame.levels);
         return;
       }
+    }
+
+    if (queryTemplate) {
+      setCurrentTemplate(parseInt(queryTemplate));
     }
   }, []);
 
@@ -292,7 +305,7 @@ export default function PlayGame() {
       return;
     }
     return (
-      <div className="mt-4 flex w-full flex-col py-4 text-center">
+      <div className="flex w-full flex-col py-4 text-center">
         <h3 className="text-3xl font-bold md:text-6xl">
           {currentLevel.sb} / {currentLevel.bb}{" "}
           {currentLevel.ante > 0 ? " / " + currentLevel.ante : ""} /{" "}
@@ -310,7 +323,7 @@ export default function PlayGame() {
     }
     return (
       <div className="flex flex-col items-center justify-center">
-        <div className="mb-8 mt-4 flex w-full flex-col py-4 text-center">
+        <div className="mt-4 flex w-full flex-col py-4 text-center md:mb-8">
           <h2 className="text-xl font-bold">Siguiente nivel</h2>
           <h3 className="text-xl font-bold md:text-2xl">
             {nextLevel.sb} / {nextLevel.bb}{" "}
@@ -321,11 +334,14 @@ export default function PlayGame() {
         <Button
           className="mt-4"
           onClick={() => {
-            const newTimer =
-              Math.round(timer / 60) * 60 + currentLevel.time * 60;
-            setTimer(newTimer);
+            let finishedLevelsMinutes = 0;
+            for (let i = 0; i <= levelIndex; i++) {
+              finishedLevelsMinutes = +finishedLevelsMinutes + +levels[i].time;
+            }
+            setTimer(finishedLevelsMinutes * 60);
           }}
         >
+          <FastForward className="mr-2 size-4" />
           Siguiente nivel
         </Button>
       </div>
@@ -394,15 +410,15 @@ export default function PlayGame() {
           </Select>
         </div>
       ) : (
-        <>
-          <div className="flex items-center justify-end">
+        <div className="flex flex-col items-center md:gap-4">
+          <div className="order-3 flex w-full items-center justify-end md:order-1">
             <Dialog>
               <DialogTrigger>
                 <Button variant="destructive" size="icon">
                   <RotateCcw className="size-4" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-white">
+              <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
                     ¿Seguro que quieres reiniciar esta partida?
@@ -423,9 +439,11 @@ export default function PlayGame() {
               </DialogContent>
             </Dialog>
           </div>
-          <h1 className="mb-8 text-center text-4xl font-bold">{game.name}</h1>
-          <div className="md:flex md:items-start md:justify-between">
-            <div className="mb-10 flex flex-col items-start justify-between space-y-10 md:w-1/6">
+          <h1 className="order-1 mb-4 text-center text-4xl font-bold md:order-2 md:mb-8">
+            {game.name}
+          </h1>
+          <div className="order-2 flex w-full flex-col md:order-3 md:flex-row md:items-start md:justify-between">
+            <div className="order-2 mb-10 flex flex-col items-start justify-between space-y-2 md:order-1 md:w-1/6 md:space-y-10">
               <div className="flex w-full items-center justify-between gap-4 md:flex-col md:items-start">
                 <h2 className="flex items-center text-xl font-bold">
                   <UsersIcon className="mr-2 size-6" />
@@ -458,23 +476,35 @@ export default function PlayGame() {
                 </h3>
               </div>
             </div>
-            <div className="md:w-4/6">
-              <div className="mb-10 flex items-center justify-center">
-                <Button size="lg" onClick={togglePlaying}>
-                  {playing ? "Stop" : "Start"}
+            <div className="order-1 mb-8 md:order-2 md:w-4/6">
+              <div className="mb-4 flex items-center justify-center md:mb-10">
+                <Button
+                  className="flex items-center justify-center"
+                  size="lg"
+                  onClick={togglePlaying}
+                >
+                  {playing ? (
+                    <>
+                      <PauseIcon className="mr-2 size-4" /> Pausar
+                    </>
+                  ) : (
+                    <>
+                      <PlayIcon className="mr-2 size-4" /> Jugar
+                    </>
+                  )}
                 </Button>
               </div>
               {showCurrentLevel()}
               {timer > 0 && (
-                <div className="my-5 flex justify-center">
-                  <div className="w-full p-4 text-center text-7xl font-bold md:text-9xl">
+                <div className="my-2 flex justify-center md:my-5">
+                  <div className="w-full p-4 text-center text-8xl font-bold md:text-9xl">
                     {showClock()}
                   </div>
                 </div>
               )}
               {showNextLevel()}
             </div>
-            <div className="md:w-1/6">
+            <div className="order-3 md:order-3 md:w-1/6">
               {currentStructurePrizes?.prizes?.length > 0 && (
                 <div className="flex flex-col space-y-8">
                   <div>
@@ -523,7 +553,7 @@ export default function PlayGame() {
                     {calculatedPrizes()}
                     {game.bubble && (
                       <div className="flex justify-between">
-                        <small>Bubble</small>
+                        <small>Burbuja</small>
                         <strong>
                           {Math.round(game.bubble).toLocaleString("es-ES", {
                             currency: "EUR",
@@ -538,10 +568,10 @@ export default function PlayGame() {
               )}
             </div>
           </div>
-          <div className="my-10 flex flex-col md:flex-row md:justify-between md:space-x-4">
-            <div className="mb-8 flex w-full flex-col text-center md:w-40">
+          <div className="order-4 my-10 grid w-full grid-cols-2 gap-4 md:order-4 md:grid-cols-4">
+            <div className="mb-8 flex w-full flex-col justify-center text-center">
               <h3 className="mb-2 text-xl font-bold">Jugadores</h3>
-              <div className="flex items-center justify-center space-x-4 md:justify-between">
+              <div className="flex items-center justify-center space-x-4">
                 <Button size="icon" onClick={() => removePlayer()}>
                   <MinusIcon className="size-4" />
                 </Button>
@@ -552,9 +582,9 @@ export default function PlayGame() {
               </div>
             </div>
 
-            <div className="mb-8 flex w-full flex-col text-center md:w-40">
+            <div className="mb-8 flex w-full flex-col justify-center text-center">
               <h3 className="mb-2 text-xl font-bold">Entradas</h3>
-              <div className="flex items-center justify-center space-x-4 md:justify-between">
+              <div className="flex items-center justify-center space-x-4">
                 <Button size="icon" onClick={() => removeEntry()}>
                   <MinusIcon className="size-4" />
                 </Button>
@@ -565,9 +595,9 @@ export default function PlayGame() {
               </div>
             </div>
 
-            <div className="mb-8 flex w-full flex-col text-center md:w-40">
+            <div className="mb-8 flex w-full flex-col justify-center text-center">
               <h3 className="mb-2 text-xl font-bold">Addons</h3>
-              <div className="flex items-center justify-center space-x-4 md:justify-between">
+              <div className="flex items-center justify-center space-x-4">
                 <Button size="icon" onClick={() => removeAddon()}>
                   <MinusIcon className="size-4" />
                 </Button>
@@ -578,9 +608,9 @@ export default function PlayGame() {
               </div>
             </div>
 
-            <div className="mb-8 flex w-full flex-col text-center md:w-40">
+            <div className="mb-8 flex w-full flex-col justify-center text-center">
               <h3 className="mb-2 text-xl font-bold">Doble Addons</h3>
-              <div className="flex items-center justify-center space-x-4 md:justify-between">
+              <div className="flex items-center justify-center space-x-4">
                 <Button size="icon" onClick={() => removeDoubleAddon()}>
                   <MinusIcon className="size-4" />
                 </Button>
@@ -591,7 +621,7 @@ export default function PlayGame() {
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
       <audio ref={audioPlayer} src={Notification} />
     </div>

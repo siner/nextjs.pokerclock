@@ -81,7 +81,9 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                   <TableCell>
                     <div className="flex items-center justify-end space-x-2">
                       <Button size="icon">
-                        <PlayIcon className="size-4" />
+                        <Link href={`/play?template=${gametemplate.id}`}>
+                          <PlayIcon className="size-4" />
+                        </Link>
                       </Button>
                       <Button variant="outline" size="icon">
                         <Link href={`/gametemplates/${gametemplate.id}`}>
@@ -94,7 +96,7 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                             <TrashIcon className="size-4" />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="bg-white">
+                        <DialogContent>
                           <DialogHeader>
                             <DialogTitle>
                               ¿Seguro que quieres borrar esta plantilla?

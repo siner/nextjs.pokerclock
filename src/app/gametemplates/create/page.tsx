@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function CreateGame() {
   return (
-    <main className="flex flex-col items-start gap-8 sm:items-start">
+    <main className="flex w-full flex-col items-start gap-8 sm:items-start">
       <div className="mb-10 flex items-start gap-4">
         <Button size="lg" variant="outline">
           <Link href="/gametemplates">Volver</Link>
