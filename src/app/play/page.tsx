@@ -3,7 +3,14 @@ import PlayGame from "@/components/play-game";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-export default function Play() {
+export default function Play(params: {
+  searchParams: {
+    template: string;
+  };
+}) {
+  const { searchParams } = params;
+  const { template } = searchParams;
+
   return (
     <main className="flex w-full flex-col items-start gap-8">
       <div className="flex flex-col items-start gap-4">
@@ -11,7 +18,7 @@ export default function Play() {
           <Link href="/gametemplates">Volver</Link>
         </Button>
       </div>
-      <PlayGame />
+      <PlayGame template={template} />
     </main>
   );
 }

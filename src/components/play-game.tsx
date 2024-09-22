@@ -36,15 +36,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 const Notification = "/notification.mp3";
-import { useSearchParams } from "next/navigation";
 
-export default function PlayGame() {
+export default function PlayGame(params: { template: string }) {
   const { toast } = useToast();
   const audioPlayer = useRef(null);
-
-  const searchParams = useSearchParams();
-
-  const queryTemplate = searchParams.get("template");
 
   function playAudio() {
     if (audioPlayer.current) {
@@ -78,8 +73,8 @@ export default function PlayGame() {
       }
     }
 
-    if (queryTemplate) {
-      setCurrentTemplate(parseInt(queryTemplate));
+    if (params.template) {
+      setCurrentTemplate(parseInt(params.template));
     }
   }, []);
 
