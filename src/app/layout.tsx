@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import Script from "next/script";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -38,6 +39,11 @@ export default function RootLayout({
             </div>
             {children}
           </div>
+          <Script
+            src="https://cloud.umami.is/script.js"
+            data-website-id="59069e22-bc18-4e31-9ddc-26d6d8b564ef"
+            strategy="beforeInteractive"
+          />
           <Toaster />
         </ThemeProvider>
       </body>

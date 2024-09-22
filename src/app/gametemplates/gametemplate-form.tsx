@@ -446,7 +446,7 @@ export default function GameTemplateForm({
             onClick={() => updateGameTemplate()}
             disabled={loading}
           >
-            {loading ? "Saving ..." : "Save"}
+            {loading ? "Guardando ..." : "Guardar"}
           </Button>
         </div>
       </div>
