@@ -218,7 +218,7 @@ export default function GameTemplateForm({
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <div className="space-y-1">
             <Label htmlFor="fee">Comisión</Label>
-            <div className="flex w-full max-w-sm items-center space-x-2">
+            <div className="flex w-full items-center space-x-2">
               <Input
                 id="fee"
                 type="text"
@@ -257,7 +257,7 @@ export default function GameTemplateForm({
           </div>
           <div className="space-y-1">
             <Label htmlFor="buyin">Premio Burbuja</Label>
-            <div className="flex w-full max-w-sm items-center space-x-2">
+            <div className="flex w-full items-center space-x-2">
               <Input
                 id="bubble"
                 type="text"
@@ -274,7 +274,7 @@ export default function GameTemplateForm({
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <div className="space-y-1">
             <Label htmlFor="fee">Addon</Label>
-            <div className="flex w-full max-w-sm items-center space-x-2">
+            <div className="flex w-full items-center space-x-2">
               <Input
                 id="addon_price"
                 type="text"
@@ -299,7 +299,7 @@ export default function GameTemplateForm({
           </div>
           <div className="space-y-1">
             <Label htmlFor="fee">Doble addon</Label>
-            <div className="flex w-full max-w-sm items-center space-x-2">
+            <div className="flex w-full items-center space-x-2">
               <Input
                 id="fee"
                 type="text"
