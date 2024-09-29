@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Script from "next/script";
+import ServiceWorker from "@/components/service-worker";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -45,6 +46,7 @@ export default function RootLayout({
             strategy="beforeInteractive"
           />
           <Toaster />
+          <ServiceWorker />
         </ThemeProvider>
       </body>
     </html>
