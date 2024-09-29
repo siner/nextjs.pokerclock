@@ -18,8 +18,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Poker Clock",
-  description: "Easy to use poker clock",
+  title: "Reloj de poker",
+  description: "Reloj de poker sencillo para jugar en casa",
 };
 
 export default function RootLayout({
