@@ -39,6 +39,11 @@ export type Game = {
   playing: boolean;
   started: Date;
   elapsed: number;
+  players: number;
+  total_players: number;
+  entries: number;
+  addons: number;
+  doubleaddons: number;
   current_level: Level;
   next_level: Level;
   final: {

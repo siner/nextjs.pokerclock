@@ -69,6 +69,12 @@ export default function PlayGame(params: { template: string }) {
         setCurrentLevel(currentGame.current_level);
         setNextLevel(currentGame.next_level);
         setLevels(currentGame.levels);
+        setPlayers(currentGame.players);
+        setTotalPlayers(currentGame.total_players);
+        setEntries(currentGame.entries);
+        setAddons(currentGame.addons);
+        setDoubleAddons(currentGame.doubleaddons);
+        setTimer(currentGame.elapsed);
         return;
       }
     }
@@ -104,13 +110,25 @@ export default function PlayGame(params: { template: string }) {
       prize_structures: template.prize_structures,
       current_level: template.levels[0],
       next_level: template.levels[1],
+      players: 0,
+      total_players: 0,
+      entries: 0,
+      addons: 0,
+      doubleaddons: 0,
+      elapsed: 0,
       levels: template.levels,
     } as Game;
+    setGame(newGame);
     setLevels(template.levels);
     setLevelIndex(0);
     setCurrentLevel(newGame.levels[0]);
     setNextLevel(newGame.levels[1]);
     setGame(newGame);
+    setPlayers(0);
+    setTotalPlayers(0);
+    setEntries(0);
+    setAddons(0);
+    setDoubleAddons(0);
     localStorage.setItem("game", JSON.stringify(newGame));
   }
 
@@ -131,6 +149,12 @@ export default function PlayGame(params: { template: string }) {
       current_level: game.current_level,
       next_level: game.next_level,
       levels: game.levels,
+      players: players,
+      total_players: totalPlayers,
+      entries: entries,
+      addons: addons,
+      doubleaddons: doubleaddons,
+      elapsed: timer,
     } as Game;
     setGame(newGame);
     localStorage.setItem("game", JSON.stringify(newGame));
@@ -180,6 +204,8 @@ export default function PlayGame(params: { template: string }) {
 
         if (timerPreviousLevels > 0 && timer == timerPreviousLevels) {
           playAudio();
+          setLevelIndex(levelIndex + 1);
+        } else if (timer > timerPreviousLevels) {
           setLevelIndex(levelIndex + 1);
         }
         setTimer((timer) => timer + 1);
@@ -472,6 +498,13 @@ export default function PlayGame(params: { template: string }) {
               </div>
             </div>
             <div className="order-1 mb-8 md:order-2 md:w-4/6">
+              {!playing && timer > 0 && (
+                <div className="mb-4 flex items-center justify-center text-center">
+                  <p className="bg-red-400 p-4 text-2xl uppercase text-white">
+                    Juego en pausa
+                  </p>
+                </div>
+              )}
               <div className="mb-4 flex items-center justify-center md:mb-10">
                 <Button
                   className="flex items-center justify-center"
@@ -484,7 +517,7 @@ export default function PlayGame(params: { template: string }) {
                     </>
                   ) : (
                     <>
-                      <PlayIcon className="mr-2 size-4" /> Jugar
+                      <PlayIcon className="mr-2 size-4" /> Reanudar
                     </>
                   )}
                 </Button>
