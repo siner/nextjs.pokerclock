@@ -127,7 +127,12 @@ export default function HistoryPageClient() {
     }
 
     // Filtros de fecha y jugadores
-    const filterCriteria: any = {};
+    const filterCriteria: {
+      dateFrom?: Date;
+      dateTo?: Date;
+      minPlayers?: number;
+      maxPlayers?: number;
+    } = {};
     if (filters.dateFrom) filterCriteria.dateFrom = new Date(filters.dateFrom);
     if (filters.dateTo) filterCriteria.dateTo = new Date(filters.dateTo);
     if (filters.minPlayers)
