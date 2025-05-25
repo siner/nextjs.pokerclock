@@ -1,26 +1,40 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { EuroIcon, MinusIcon, PercentIcon, PlusIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-
+import { useUnsavedChanges } from "@/hooks/use-unsaved-changes";
+import { ExitConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { ValidationSummary } from "@/components/ui/validation-message";
+import { LoadingOverlay, ButtonLoading } from "@/components/ui/loading";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  validateGameTemplate,
+  getFieldMessage,
+  type FormGameTemplate,
+  type ValidationResult,
+} from "@/lib/validations";
 
 import { useEffect, useState } from "react";
+import { type GameTemplate, type Level, type PrizeStructure } from "@/types";
+
+import { FormSection, FormGrid } from "@/components/ui/form-section";
 import {
-  type GameTemplate,
-  type Level,
-  type Prize,
-  type PrizeStructure,
-} from "@/types";
+  EnhancedInput,
+  MoneyInput,
+  PercentageInput,
+} from "@/components/ui/enhanced-input";
+import { LevelManager } from "@/components/ui/level-manager";
+import { PrizeStructureManager } from "@/components/ui/prize-structure-manager";
+import {
+  Settings,
+  DollarSign,
+  Users,
+  Save,
+  Loader2,
+  FileText,
+  Calculator,
+  Clock,
+} from "lucide-react";
 
 export default function GameTemplateForm({
   gametemplate,
@@ -35,81 +49,122 @@ export default function GameTemplateForm({
     const { name, value } = e.target;
     setnewGameTemplate({ ...newGameTemplate, [name]: value });
   }
+
+  // Funciones de conversión para manejar tipos
+  const convertLevelsToNumbers = (
+    levels: Array<{
+      sb: string | number;
+      bb: string | number;
+      ante: string | number;
+      time: string | number;
+    }>
+  ): Level[] => {
+    return levels.map((level) => ({
+      sb: Number(level.sb) || 0,
+      bb: Number(level.bb) || 0,
+      ante: Number(level.ante) || 0,
+      time: Number(level.time) || 0,
+    }));
+  };
+
+  const convertPrizeStructuresToNumbers = (
+    structures: Array<{
+      max_players: string | number;
+      prizes: Array<{ id?: number; percentaje: string | number }>;
+    }>
+  ): PrizeStructure[] => {
+    return structures.map((structure) => ({
+      max_players: Number(structure.max_players) || 0,
+      prizes: structure.prizes.map((prize) => ({
+        id: prize.id || 0,
+        percentaje: Number(prize.percentaje) || 0,
+      })),
+    }));
+  };
+
   const { toast } = useToast();
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-
   const [levels, setLevels] = useState<Level[]>(newGameTemplate.levels ?? []);
-
   const [prizeStructures, setPrizeStructures] = useState<PrizeStructure[]>(
     newGameTemplate.prize_structures ?? []
   );
 
-  function addPrizeStructure() {
-    setPrizeStructures([
-      ...prizeStructures,
-      {
-        max_players: "",
-        prizes: [],
-      } as unknown as PrizeStructure,
-    ]);
+  const [validationResult, setValidationResult] = useState<ValidationResult>({
+    isValid: true,
+    errors: [],
+    warnings: [],
+  });
+
+  // Detectar cambios sin guardar
+  const [hasChanges, setHasChanges] = useState(false);
+  const [originalData, setOriginalData] = useState<string>("");
+
+  const { showExitConfirmation, handleNavigation, confirmExit, cancelExit } =
+    useUnsavedChanges(hasChanges);
+
+  // Combinar errores y advertencias para mostrar en la UI
+  const allMessages = [
+    ...validationResult.errors,
+    ...validationResult.warnings,
+  ];
+
+  // Convertir mensajes a objetos para fácil acceso
+  const errorMap = validationResult.errors.reduce(
+    (acc, error) => {
+      acc[error.field] = error.message;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
+  const warningMap = validationResult.warnings.reduce(
+    (acc, warning) => {
+      acc[warning.field] = warning.message;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
+  // Función para validar en tiempo real
+  function validateForm() {
+    const formData: FormGameTemplate = {
+      ...newGameTemplate,
+      levels: levels,
+      prize_structures: prizeStructures,
+    };
+
+    const result = validateGameTemplate(formData);
+    setValidationResult(result);
+    return result;
   }
 
-  function manageInputMaxPlayersChange(
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const { value } = e.target;
-    setPrizeStructures(
-      prizeStructures.map((prizeStructure, i) =>
-        i === index
-          ? ({
-              ...prizeStructure,
-              max_players: value,
-            } as unknown as PrizeStructure)
-          : prizeStructure
-      )
-    );
-  }
+  // Establecer datos originales al cargar
+  useEffect(() => {
+    const currentData = JSON.stringify({
+      template: newGameTemplate,
+      levels,
+      prizeStructures,
+    });
 
-  function manageInputPrizeChange(
-    index: number,
-    prizeIndex: number,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const { value } = e.target;
-    setPrizeStructures(
-      prizeStructures.map((prizeStructure, i) =>
-        i === index
-          ? ({
-              ...prizeStructure,
-              prizes: prizeStructure.prizes.map((prize, j) =>
-                j === prizeIndex ? { ...prize, percentaje: value } : prize
-              ),
-            } as unknown as PrizeStructure)
-          : prizeStructure
-      )
-    );
-  }
+    if (!originalData) {
+      setOriginalData(currentData);
+    } else {
+      setHasChanges(currentData !== originalData);
+    }
+  }, [newGameTemplate, levels, prizeStructures, originalData]);
 
-  function addPercentaje(index: number) {
-    setPrizeStructures(
-      prizeStructures.map((prizeStructure, i) =>
-        i === index
-          ? ({
-              ...prizeStructure,
-              prizes: [
-                ...prizeStructure.prizes,
-                {
-                  percentaje: "",
-                } as unknown as Prize,
-              ],
-            } as unknown as PrizeStructure)
-          : prizeStructure
-      )
-    );
-  }
+  // Validar cuando cambian los datos
+  useEffect(() => {
+    if (
+      newGameTemplate.name ||
+      newGameTemplate.entry ||
+      newGameTemplate.points
+    ) {
+      validateForm();
+    }
+  }, [newGameTemplate, levels, prizeStructures]);
 
   useEffect(() => {
     setnewGameTemplate({
@@ -124,332 +179,407 @@ export default function GameTemplateForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [levels]);
 
-  function addLevel() {
-    setLevels([...levels, { sb: 0, bb: 0, ante: 0, time: 0 } as Level]);
-  }
+  async function updateGameTemplate() {
+    const validation = validateForm();
 
-  function removeLevel(index: number) {
-    setLevels(levels.filter((_level, i) => i !== index));
-  }
-
-  function manageInputLevelChange(
-    index: number,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const { name, value } = e.target;
-    setLevels(
-      levels.map((level, i) =>
-        i === index ? { ...level, [name]: value } : level
-      )
-    );
-  }
-
-  const [error, setError] = useState(false);
-
-  function updateGameTemplate() {
-    if (
-      !newGameTemplate.name ||
-      !newGameTemplate.entry ||
-      !newGameTemplate.points ||
-      !newGameTemplate.levels ||
-      !newGameTemplate.prize_structures
-    ) {
+    if (!validation.isValid) {
       toast({
-        description: "Faltan algunos campos por rellenar",
+        description: `Se encontraron ${validation.errors.length} errores de validación. Por favor, corrígelos antes de continuar.`,
         variant: "destructive",
       });
-      setError(true);
       return;
     }
+
+    if (validation.warnings.length > 0) {
+      toast({
+        description: `Se encontraron ${validation.warnings.length} advertencias. Revisa la configuración antes de continuar.`,
+        variant: "default",
+      });
+    }
+
     setLoading(true);
 
-    if (gametemplate) {
-      // Update game in local storage
-    } else {
-      newGameTemplate.id = Math.floor(Math.random() * 1000000000);
+    try {
+      // Simular un pequeño delay para mostrar el loading
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      localStorage.setItem(
-        "gameTemplates",
-        JSON.stringify([
-          ...JSON.parse(localStorage.getItem("gameTemplates") || "[]"),
-          newGameTemplate,
-        ])
+      if (gametemplate) {
+        // Update game in local storage
+        const existingTemplates = JSON.parse(
+          localStorage.getItem("gameTemplates") || "[]"
+        );
+        const updatedTemplates = existingTemplates.map(
+          (template: GameTemplate) =>
+            template.id === gametemplate.id ? newGameTemplate : template
+        );
+        localStorage.setItem("gameTemplates", JSON.stringify(updatedTemplates));
+        toast({
+          title: "¡Plantilla actualizada!",
+          description: "Los cambios se han guardado correctamente.",
+        });
+      } else {
+        newGameTemplate.id = Math.floor(Math.random() * 1000000000);
+        localStorage.setItem(
+          "gameTemplates",
+          JSON.stringify([
+            ...JSON.parse(localStorage.getItem("gameTemplates") || "[]"),
+            newGameTemplate,
+          ])
+        );
+        toast({
+          title: "¡Plantilla creada!",
+          description: "La nueva plantilla se ha guardado correctamente.",
+        });
+      }
+
+      // Resetear estado de cambios después de guardar
+      setHasChanges(false);
+      setOriginalData(
+        JSON.stringify({
+          template: newGameTemplate,
+          levels,
+          prizeStructures,
+        })
       );
+
+      // Pequeño delay antes de navegar para mostrar el toast
+      setTimeout(() => {
+        router.push("/gametemplates");
+      }, 1000);
+    } catch (error) {
+      console.error("Error al guardar la plantilla:", error);
       toast({
-        description: "Torneo creado correctamente",
+        title: "Error al guardar",
+        description: "No se pudo guardar la plantilla. Inténtalo de nuevo.",
+        variant: "destructive",
       });
-      router.push("/gametemplates");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <>
-      <div className="grid w-full gap-6">
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="space-y-1">
-            <Label htmlFor="buyin">Nombre</Label>
-            <Input
-              id="name"
-              type="text"
-              name="name"
-              className="w-full"
-              defaultValue={newGameTemplate.name}
-              onChange={manageInputChange}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="buyin">Entrada</Label>
-            <div className="flex w-full items-center space-x-2">
-              <Input
-                id="entry"
-                type="text"
-                name="entry"
-                className={
-                  "w-full " +
-                  (error && !newGameTemplate.entry ? "border-red-500" : "")
-                }
-                defaultValue={newGameTemplate.entry}
-                onChange={manageInputChange}
-              />
-              <EuroIcon className="size-4 text-gray-400" />
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <div className="space-y-1">
-            <Label htmlFor="fee">Comisión</Label>
-            <div className="flex w-full items-center space-x-2">
-              <Input
-                id="fee"
-                type="text"
-                name="fee"
-                className="w-full"
-                defaultValue={newGameTemplate.fee}
-                onChange={manageInputChange}
-              />
-              <PercentIcon className="size-4 text-gray-400" />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="points">Puntos iniciales</Label>
-            <Input
-              id="points"
-              type="text"
-              name="points"
-              className={
-                "w-full " +
-                (error && !newGameTemplate.points ? "border-red-500" : "")
+    <LoadingOverlay
+      isLoading={loading}
+      text={gametemplate ? "Actualizando plantilla..." : "Creando plantilla..."}
+    >
+      <div className="mx-auto max-w-6xl space-y-8">
+        {/* Resumen de validación */}
+        {allMessages.length > 0 && (
+          <ValidationSummary errors={allMessages} className="mb-6" />
+        )}
+
+        {/* Información Básica */}
+        <FormSection
+          title="Información Básica"
+          description="Configuración general del torneo"
+          icon={<FileText className="h-5 w-5" />}
+        >
+          <FormGrid columns={2}>
+            <EnhancedInput
+              label="Nombre del Torneo"
+              required
+              placeholder="Ej: Torneo Semanal"
+              value={newGameTemplate.name || ""}
+              onValueChange={(value) =>
+                setnewGameTemplate({ ...newGameTemplate, name: value })
               }
-              defaultValue={newGameTemplate.points}
-              onChange={manageInputChange}
+              error={errorMap["name"]}
+              warning={warningMap["name"]}
+              tooltip="Nombre descriptivo para identificar tu torneo"
             />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="extrapot">Bote extra inicio</Label>
-            <Input
-              id="extrapot"
-              type="text"
-              name="extrapot"
-              className="w-full"
-              defaultValue={newGameTemplate.extrapot}
-              onChange={manageInputChange}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="buyin">Premio Burbuja</Label>
-            <div className="flex w-full items-center space-x-2">
-              <Input
-                id="bubble"
-                type="text"
-                name="bubble"
-                className="w-full"
-                defaultValue={newGameTemplate.bubble}
-                onChange={manageInputChange}
-              />
-              <EuroIcon className="size-4 text-gray-400" />
-            </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <div className="space-y-1">
-            <Label htmlFor="fee">Addon</Label>
-            <div className="flex w-full items-center space-x-2">
-              <Input
-                id="addon_price"
-                type="text"
-                name="addon_price"
-                className="w-full"
-                defaultValue={newGameTemplate.addon_price}
-                onChange={manageInputChange}
-              />
-              <EuroIcon className="size-4 text-gray-400" />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="points">Puntos Addon</Label>
-            <Input
-              id="addon_points"
-              type="text"
-              name="addon_points"
-              className="w-full"
-              defaultValue={newGameTemplate.addon_points}
-              onChange={manageInputChange}
+            <MoneyInput
+              label="Entrada (Buy-in)"
+              required
+              placeholder="20.00"
+              value={String(newGameTemplate.entry || "")}
+              onValueChange={(value) =>
+                setnewGameTemplate({
+                  ...newGameTemplate,
+                  entry: Number(value) || 0,
+                })
+              }
+              error={errorMap["entry"]}
+              warning={warningMap["entry"]}
+              tooltip="Coste de entrada al torneo en euros"
             />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="fee">Doble addon</Label>
-            <div className="flex w-full items-center space-x-2">
-              <Input
-                id="fee"
-                type="text"
-                name="double_addon_price"
-                className="w-full"
-                defaultValue={newGameTemplate.double_addon_price}
-                onChange={manageInputChange}
-              />
-              <EuroIcon className="size-4 text-gray-400" />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="points">Puntos Doble Addon</Label>
-            <Input
-              id="points"
-              type="text"
-              name="double_addon_points"
-              className="w-full"
-              defaultValue={newGameTemplate.double_addon_points}
-              onChange={manageInputChange}
-            />
-          </div>
-        </div>
+          </FormGrid>
 
-        <div>
-          <h2 className="mb-4 text-xl font-bold">Niveles</h2>
-          <div className="mb-4 flex flex-col space-y-3">
-            <div className="grid grid-cols-5 gap-3">
-              <span>Ciega pequeña</span>
-              <span>Ciega grande</span>
-              <span>Ante</span>
-              <span>Minutos</span>
-              <span></span>
-            </div>
-            {levels.map((level, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-5 gap-3"
-                style={{
-                  backgroundColor:
-                    index % 2 === 0
-                      ? "rgba(255, 255, 255, 0.1)"
-                      : "transparent",
-                }}
-              >
-                <Input
-                  id="sb"
-                  type="number"
-                  name="sb"
-                  className="w-full"
-                  defaultValue={level.sb ?? ""}
-                  onChange={(e) => manageInputLevelChange(index, e)}
-                />
-                <Input
-                  id="bb"
-                  type="number"
-                  name="bb"
-                  className="w-full"
-                  defaultValue={level.bb ?? ""}
-                  onChange={(e) => manageInputLevelChange(index, e)}
-                />
-                <Input
-                  id="ante"
-                  type="number"
-                  name="ante"
-                  className="w-full"
-                  defaultValue={level.ante ?? ""}
-                  onChange={(e) => manageInputLevelChange(index, e)}
-                />
-                <Input
-                  id="time"
-                  type="number"
-                  name="time"
-                  className="w-full"
-                  defaultValue={level.time ?? ""}
-                  onChange={(e) => manageInputLevelChange(index, e)}
-                />
-                <Button onClick={() => removeLevel(index)} size="icon">
-                  <MinusIcon className="size-4" />
-                </Button>
+          <FormGrid columns={4}>
+            <PercentageInput
+              label="Comisión"
+              placeholder="10"
+              value={String(newGameTemplate.fee || "")}
+              onValueChange={(value) =>
+                setnewGameTemplate({
+                  ...newGameTemplate,
+                  fee: Number(value) || 0,
+                })
+              }
+              error={errorMap["fee"]}
+              warning={warningMap["fee"]}
+              tooltip="Porcentaje de comisión de la casa"
+            />
+
+            <EnhancedInput
+              label="Puntos Iniciales"
+              required
+              type="number"
+              placeholder="10000"
+              value={String(newGameTemplate.points || "")}
+              onValueChange={(value) =>
+                setnewGameTemplate({
+                  ...newGameTemplate,
+                  points: value,
+                })
+              }
+              error={errorMap["points"]}
+              warning={warningMap["points"]}
+              tooltip="Fichas que recibe cada jugador al inicio"
+            />
+
+            <MoneyInput
+              label="Bote Extra"
+              placeholder="0.00"
+              value={String(newGameTemplate.extrapot || "")}
+              onValueChange={(value) =>
+                setnewGameTemplate({
+                  ...newGameTemplate,
+                  extrapot: Number(value) || 0,
+                })
+              }
+              error={errorMap["extrapot"]}
+              warning={warningMap["extrapot"]}
+              tooltip="Dinero adicional añadido al bote de premios"
+            />
+
+            <MoneyInput
+              label="Premio Burbuja"
+              placeholder="0.00"
+              value={String(newGameTemplate.bubble || "")}
+              onValueChange={(value) =>
+                setnewGameTemplate({
+                  ...newGameTemplate,
+                  bubble: Number(value) || 0,
+                })
+              }
+              error={errorMap["bubble"]}
+              warning={warningMap["bubble"]}
+              tooltip="Premio para el último jugador eliminado antes de premios"
+            />
+          </FormGrid>
+
+          {/* Bono de Puntualidad */}
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+            <div className="mb-3 flex items-center gap-2">
+              <div className="rounded-full bg-blue-100 p-2 dark:bg-blue-900">
+                <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
-            ))}
+              <div>
+                <h4 className="font-medium text-blue-900 dark:text-blue-100">
+                  Bono de Puntualidad
+                </h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Puntos extra para jugadores que lleguen durante el primer
+                  nivel
+                </p>
+              </div>
+            </div>
+
+            <FormGrid columns={2}>
+              <EnhancedInput
+                label="Puntos de Bono"
+                type="number"
+                placeholder="2500"
+                value={String(newGameTemplate.punctuality_bonus || "")}
+                onValueChange={(value) =>
+                  setnewGameTemplate({
+                    ...newGameTemplate,
+                    punctuality_bonus: Number(value) || 0,
+                  })
+                }
+                error={errorMap["punctuality_bonus"]}
+                warning={warningMap["punctuality_bonus"]}
+                tooltip="Puntos adicionales que reciben los jugadores puntuales"
+              />
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Resumen del Stack Inicial
+                </label>
+                <div className="rounded-md bg-muted/50 p-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Puntos base:</span>
+                    <span className="font-medium">
+                      {Number(newGameTemplate.points || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Bono puntualidad:
+                    </span>
+                    <span className="font-medium text-blue-600 dark:text-blue-400">
+                      +
+                      {Number(
+                        newGameTemplate.punctuality_bonus || 0
+                      ).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex justify-between border-t pt-2">
+                    <span className="font-medium">Total con bono:</span>
+                    <span className="font-bold text-green-600 dark:text-green-400">
+                      {(
+                        Number(newGameTemplate.points || 0) +
+                        Number(newGameTemplate.punctuality_bonus || 0)
+                      ).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </FormGrid>
           </div>
-          <Button onClick={addLevel} size="icon">
-            <PlusIcon className="size-4" />
-          </Button>
-        </div>
+        </FormSection>
 
-        <div>
-          <h2 className="mb-4 text-xl font-bold">Estructura de premios</h2>
+        {/* Configuración de Add-ons */}
+        <FormSection
+          title="Add-ons y Recompras"
+          description="Configuración opcional de add-ons"
+          icon={<Calculator className="h-5 w-5" />}
+        >
+          <FormGrid columns={2}>
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium text-muted-foreground">
+                Add-on Simple
+              </h4>
+              <FormGrid columns={2}>
+                <MoneyInput
+                  label="Precio"
+                  placeholder="10.00"
+                  value={String(newGameTemplate.addon_price || "")}
+                  onValueChange={(value) =>
+                    setnewGameTemplate({
+                      ...newGameTemplate,
+                      addon_price: Number(value) || 0,
+                    })
+                  }
+                  tooltip="Coste del add-on simple"
+                />
+                <EnhancedInput
+                  label="Puntos"
+                  type="number"
+                  placeholder="5000"
+                  value={String(newGameTemplate.addon_points || "")}
+                  onValueChange={(value) =>
+                    setnewGameTemplate({
+                      ...newGameTemplate,
+                      addon_points: Number(value) || 0,
+                    })
+                  }
+                  tooltip="Fichas que otorga el add-on simple"
+                />
+              </FormGrid>
+            </div>
 
-          <Accordion type="single" collapsible className="w-full">
-            {prizeStructures.map((prizeStructure, index) => (
-              <AccordionItem
-                key={index}
-                value={"item-" + index}
-                className="mb-4"
-              >
-                <AccordionTrigger>
-                  <Input
-                    key={index}
-                    type="number"
-                    name="maxplayers"
-                    placeholder="Jugadores"
-                    className="w-32"
-                    defaultValue={prizeStructure.max_players}
-                    onChange={(e) => manageInputMaxPlayersChange(index, e)}
-                  />
-                </AccordionTrigger>
-                <AccordionContent className="flex flex-col space-y-3">
-                  {prizeStructure.prizes.map((prize, prizeindex) => (
-                    <div
-                      key={prizeindex}
-                      className="flex w-full max-w-sm items-center space-x-2"
-                    >
-                      <Input
-                        type="number"
-                        name="prize"
-                        className="w-24"
-                        defaultValue={prize.percentaje}
-                        onChange={(e) =>
-                          manageInputPrizeChange(index, prizeindex, e)
-                        }
-                      />
-                      <PercentIcon className="size-4 text-gray-400" />
-                    </div>
-                  ))}
-                  <Button onClick={() => addPercentaje(index)} size="icon">
-                    <PlusIcon className="size-4" />
-                  </Button>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium text-muted-foreground">
+                Add-on Doble
+              </h4>
+              <FormGrid columns={2}>
+                <MoneyInput
+                  label="Precio"
+                  placeholder="20.00"
+                  value={String(newGameTemplate.double_addon_price || "")}
+                  onValueChange={(value) =>
+                    setnewGameTemplate({
+                      ...newGameTemplate,
+                      double_addon_price: Number(value) || 0,
+                    })
+                  }
+                  tooltip="Coste del add-on doble"
+                />
+                <EnhancedInput
+                  label="Puntos"
+                  type="number"
+                  placeholder="10000"
+                  value={String(newGameTemplate.double_addon_points || "")}
+                  onValueChange={(value) =>
+                    setnewGameTemplate({
+                      ...newGameTemplate,
+                      double_addon_points: Number(value) || 0,
+                    })
+                  }
+                  tooltip="Fichas que otorga el add-on doble"
+                />
+              </FormGrid>
+            </div>
+          </FormGrid>
+        </FormSection>
 
-          <Button onClick={addPrizeStructure} size="icon">
-            <PlusIcon className="size-4" />
-          </Button>
-        </div>
+        {/* Gestión de Niveles */}
+        <LevelManager
+          levels={levels}
+          onLevelsChange={(newLevels) =>
+            setLevels(convertLevelsToNumbers(newLevels))
+          }
+          errors={errorMap}
+          warnings={warningMap}
+        />
 
-        <div className="flex justify-end gap-4">
+        {/* Gestión de Estructuras de Premios */}
+        <PrizeStructureManager
+          prizeStructures={prizeStructures}
+          onPrizeStructuresChange={(newStructures) =>
+            setPrizeStructures(convertPrizeStructuresToNumbers(newStructures))
+          }
+          errors={errorMap}
+          warnings={warningMap}
+        />
+
+        {/* Botones de Acción */}
+        <div className="flex justify-end gap-4 border-t pt-6">
+          {hasChanges ? (
+            <ExitConfirmationDialog
+              onConfirm={() => handleNavigation("/gametemplates")}
+              hasUnsavedChanges={hasChanges}
+            >
+              <Button type="button" variant="outline" disabled={loading}>
+                Cancelar
+              </Button>
+            </ExitConfirmationDialog>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/gametemplates")}
+              disabled={loading}
+            >
+              Cancelar
+            </Button>
+          )}
+
           <Button
-            size="sm"
-            onClick={() => updateGameTemplate()}
-            disabled={loading}
+            onClick={updateGameTemplate}
+            disabled={loading || !validationResult.isValid}
+            className="flex items-center gap-2"
           >
-            {loading ? "Guardando ..." : "Guardar"}
+            <ButtonLoading isLoading={loading} loadingText="Guardando...">
+              <Save className="h-4 w-4" />
+              {gametemplate ? "Actualizar" : "Crear"} Plantilla
+            </ButtonLoading>
           </Button>
         </div>
+
+        {/* Diálogo de confirmación de salida */}
+        {showExitConfirmation && (
+          <ExitConfirmationDialog
+            onConfirm={confirmExit}
+            hasUnsavedChanges={hasChanges}
+          >
+            <div style={{ display: "none" }} />
+          </ExitConfirmationDialog>
+        )}
       </div>
-    </>
+    </LoadingOverlay>
   );
 }

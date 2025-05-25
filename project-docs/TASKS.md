@@ -3,10 +3,10 @@
 ## Estado General de Tareas
 
 **Última Actualización**: Diciembre 2024  
-**Total de Tareas**: 47  
-**Completadas**: 32 (68%)  
-**En Progreso**: 3 (6%)  
-**Pendientes**: 12 (26%)
+**Total de Tareas**: 50  
+**Completadas**: 40 (80%)  
+**En Progreso**: 0 (0%)  
+**Pendientes**: 10 (20%)
 
 ## Tareas por Prioridad
 
@@ -14,64 +14,67 @@
 
 #### En Progreso
 
-- [ ] **TASK-001**: Implementar validaciones robustas de formularios
+_No hay tareas en progreso actualmente._
 
-  - **Descripción**: Añadir validación completa para progresión de ciegas, rangos de valores y coherencia de datos
-  - **Asignado a**: Desarrollo
-  - **Estimación**: 3 días
-  - **Estado**: En progreso (60%)
-  - **Dependencias**: Ninguna
-  - **Notas**: Validación básica implementada, falta validación avanzada
-
-- [ ] **TASK-002**: Mejorar manejo de errores y recuperación
+- [x] **TASK-002**: Mejorar manejo de errores y recuperación ✅ COMPLETADO
   - **Descripción**: Implementar try-catch comprehensivo, fallbacks para datos corruptos y logging de errores
   - **Asignado a**: Desarrollo
   - **Estimación**: 2 días
-  - **Estado**: En progreso (30%)
+  - **Estado**: Completado
   - **Dependencias**: TASK-001
-  - **Notas**: Manejo básico implementado
+  - **Archivos**: `src/components/ui/error-boundary.tsx`, `src/lib/error-handling.ts`, `src/components/tables/gametemplates-table.tsx`, `src/components/play-game.tsx`
+  - **Características**: Error Boundary completo, sistema de logging, validación y recuperación de datos, SafeStorage, manejo robusto de errores en componentes
 
 #### Pendientes
 
-- [ ] **TASK-003**: Añadir confirmaciones para acciones destructivas
+- [x] **TASK-003**: Añadir confirmaciones para acciones destructivas ✅ COMPLETADO
 
   - **Descripción**: Diálogos de confirmación para eliminar plantillas, resetear torneos, etc.
   - **Asignado a**: Desarrollo
   - **Estimación**: 1 día
-  - **Estado**: Pendiente
+  - **Estado**: Completado
   - **Dependencias**: Ninguna
   - **Prioridad**: Alta
+  - **Archivos**: `src/components/ui/confirmation-dialog.tsx`, `src/hooks/use-unsaved-changes.ts`, `src/components/play-page-client.tsx`, `src/components/edit-template-client.tsx`
+  - **Características**: Componentes especializados, detección de cambios sin guardar, confirmaciones mejoradas, arquitectura Server/Client Components correcta
 
-- [ ] **TASK-004**: Implementar estados de carga y feedback visual
+- [x] **TASK-004**: Implementar estados de carga y feedback visual ✅ COMPLETADO
+
   - **Descripción**: Spinners, skeletons y indicadores de progreso para operaciones
   - **Asignado a**: Desarrollo
   - **Estimación**: 2 días
-  - **Estado**: Pendiente
+  - **Estado**: Completado
   - **Dependencias**: Ninguna
   - **Prioridad**: Alta
+  - **Archivos**: `src/components/ui/loading.tsx`, `src/components/gametemplates-page-client.tsx`, `src/app/gametemplates/gametemplate-form.tsx`, `src/components/play-game.tsx`, `src/components/tables/gametemplates-table.tsx`
+  - **Características**: Sistema completo de loading con spinners, skeletons, overlays, botones con estados de carga, feedback visual mejorado
 
 ### 🟡 Prioridad Media (Importantes)
 
 #### En Progreso
 
-- [ ] **TASK-005**: Optimizar rendimiento del cronómetro
+- [x] **TASK-005**: Optimizar rendimiento del cronómetro ✅ COMPLETADO
+
   - **Descripción**: Reducir re-renders innecesarios y optimizar actualizaciones del timer
   - **Asignado a**: Desarrollo
   - **Estimación**: 2 días
-  - **Estado**: En progreso (40%)
+  - **Estado**: Completado
   - **Dependencias**: Ninguna
-  - **Notas**: Identificados puntos de optimización
+  - **Archivos**: `src/components/play-game.tsx`
+  - **Optimizaciones**: useCallback para saveGame, useMemo para cálculos costosos, guardado throttled cada 10s, requestIdleCallback para localStorage, reducción de re-renders del cronómetro
 
 #### Pendientes
 
-- [ ] **TASK-006**: Implementar exportación de datos
+- [x] **TASK-006**: Implementar exportación de datos ✅ COMPLETADO
 
   - **Descripción**: Exportar plantillas y resultados de torneos en formato JSON/CSV
   - **Asignado a**: Desarrollo
   - **Estimación**: 3 días
-  - **Estado**: Pendiente
+  - **Estado**: Completado
   - **Dependencias**: Ninguna
   - **Prioridad**: Media
+  - **Archivos**: `src/lib/export-utils.ts`, `src/components/ui/export-dialog.tsx`, `src/lib/tournament-history.ts`
+  - **Características**: Sistema completo de exportación con diálogo intuitivo, múltiples formatos (JSON/CSV), exportación de plantillas/historial/estadísticas/backup completo, botones de exportación rápida
 
 - [ ] **TASK-007**: Añadir importación de plantillas
 
@@ -131,12 +134,34 @@
   - **Prioridad**: Baja
 
 - [ ] **TASK-013**: Implementar PWA completa
+
   - **Descripción**: Service worker, instalación offline, notificaciones push
   - **Asignado a**: Desarrollo
   - **Estimación**: 4 días
   - **Estado**: Pendiente
   - **Dependencias**: Ninguna
   - **Prioridad**: Baja
+
+- [x] **TASK-016**: Mejorar tabla de plantillas con más información y mejor estética ✅ COMPLETADO
+
+  - **Descripción**: Mostrar estadísticas, información detallada de cada plantilla y mejorar la presentación visual
+  - **Asignado a**: Desarrollo
+  - **Estimación**: 1 día
+  - **Estado**: Completado
+  - **Dependencias**: Ninguna
+  - **Prioridad**: Media
+  - **Archivos**: `src/components/tables/gametemplates-table.tsx`
+  - **Características**: Dashboard con 3 estadísticas clave, tabla responsive, botones siempre visibles, formato €, información adicional en móvil
+  - **Mejoras aplicadas**: Eliminada columna "Tipo", botones visibles en móvil, formato de moneda simplificado, diseño responsive mejorado
+
+- [ ] **TASK-017**: Integración visual del bono de puntualidad en el reloj
+  - **Descripción**: Mostrar tiempo límite para bono, indicador visual, notificaciones de expiración
+  - **Asignado a**: Desarrollo
+  - **Estimación**: 2 días
+  - **Estado**: Pendiente
+  - **Dependencias**: TASK-015
+  - **Prioridad**: Baja
+  - **Notas**: Funcionalidad base completada, pendiente integración en reloj
 
 ## Tareas Completadas ✅
 
@@ -150,6 +175,25 @@
 
 ### Gestión de Plantillas
 
+- [x] **TASK-001**: Implementar validaciones robustas de formularios ✅ COMPLETADO AL 100%
+
+  - **Descripción**: Sistema completo de validaciones con errores y advertencias
+  - **Archivos**: `src/lib/validations.ts`, `src/components/ui/validation-message.tsx`, `src/app/gametemplates/gametemplate-form.tsx`
+  - **Correcciones**: Solo errores bloquean guardado, advertencias son informativas
+  - **Estado**: Completado con todas las correcciones aplicadas
+
+- [x] **TASK-014**: Mejorar UX del formulario de plantillas ✅ COMPLETADO
+
+  - **Descripción**: Componentes especializados, tooltips, validación visual mejorada
+  - **Archivos**: `src/components/ui/enhanced-input.tsx`, `src/components/ui/level-manager.tsx`, `src/components/ui/prize-structure-manager.tsx`
+  - **Características**: FormSection, EnhancedInput, LevelManager, PrizeStructureManager
+  - **Estado**: Completado con UX significativamente mejorada
+
+- [x] **TASK-015**: Implementar bono de puntualidad ✅ COMPLETADO
+  - **Descripción**: Campo para puntos extra durante el primer nivel del torneo
+  - **Archivos**: `src/types/index.ts`, `src/lib/validations.ts`, `src/app/gametemplates/gametemplate-form.tsx`
+  - **Características**: Validaciones, resumen visual, integración completa
+  - **Estado**: Completado con validaciones y UI atractiva
 - [x] **TASK-201**: Crear formulario de plantillas de torneo
 - [x] **TASK-202**: Implementar validación básica de formularios
 - [x] **TASK-203**: Añadir gestión de niveles (SB/BB/Ante/Tiempo)

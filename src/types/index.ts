@@ -66,6 +66,7 @@ export type GameTemplate = {
   addon_points: number;
   double_addon_price: number;
   double_addon_points: number;
+  punctuality_bonus?: number;
   levels: Level[];
   prize_structures: PrizeStructure[];
 };
