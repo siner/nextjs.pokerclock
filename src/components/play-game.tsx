@@ -262,12 +262,11 @@ export default function PlayGame(params: { template: string }) {
       punctuality_bonus_players: punctualityBonusPlayers,
     } as Game;
 
-    if ("requestIdleCallback" in window) {
-      requestIdleCallback(() => {
+    // Guardar en localStorage de forma asíncrona para no bloquear la UI
+    if (typeof window !== "undefined") {
+      setTimeout(() => {
         localStorage.setItem("game", JSON.stringify(newGame));
-      });
-    } else {
-      localStorage.setItem("game", JSON.stringify(newGame));
+      }, 0);
     }
   }, [
     game,
