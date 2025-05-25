@@ -31,10 +31,7 @@ import {
 
 import { type GameTemplate } from "@/types";
 import Link from "next/link";
-import {
-  DeleteConfirmationDialog,
-  ImportConfirmationDialog,
-} from "@/components/ui/confirmation-dialog";
+import { DeleteConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ButtonLoading, SpinnerWithText } from "@/components/ui/loading";
@@ -45,10 +42,10 @@ import {
 } from "@/lib/error-handling";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { ExportDialog, QuickExportButton } from "@/components/ui/export-dialog";
+import { ImportDialog, QuickImportButton } from "@/components/ui/import-dialog";
 
 export default function GameTemplatesTable({ title }: { title?: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
   const [gametemplates, setGametemplates] = useState<GameTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -192,68 +189,16 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
     }
   }
 
-  async function handleImportGames() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
+  // Función para manejar la importación completada
+  const handleImportComplete = () => {
+    // Recargar plantillas después de la importación
+    const rawData = SafeStorage.getItem("gameTemplates", []);
+    const validationResult = DataRecovery.validateGameTemplates(rawData);
 
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      setIsImporting(true);
-      try {
-        const text = await file.text();
-        const rawData = JSON.parse(text);
-
-        // Validar y recuperar datos usando el sistema de manejo de errores
-        const validationResult = DataRecovery.validateGameTemplates(rawData);
-
-        if (validationResult.isValid && validationResult.data) {
-          const success = SafeStorage.setItem(
-            "gameTemplates",
-            validationResult.data
-          );
-
-          if (success) {
-            // Actualizar el estado local
-            setGametemplates(validationResult.data);
-
-            toast({
-              title: "Plantillas importadas",
-              description: `Se han importado ${validationResult.data.length} plantillas correctamente.${
-                validationResult.recovered
-                  ? " Algunas plantillas fueron reparadas automáticamente."
-                  : ""
-              }`,
-            });
-          } else {
-            throw new Error("Failed to save imported templates");
-          }
-        } else {
-          throw new Error(
-            `Validation failed: ${validationResult.errors.join(", ")}`
-          );
-        }
-      } catch (error) {
-        handleError(
-          error as Error,
-          { context: "Importing templates", fileName: file.name },
-          "medium"
-        );
-
-        toast({
-          title: "Error al importar",
-          description: "El archivo no es válido o está corrupto.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsImporting(false);
-      }
-    };
-
-    input.click();
-  }
+    if (validationResult.isValid && validationResult.data) {
+      setGametemplates(validationResult.data);
+    }
+  };
 
   // Mostrar loading mientras se cargan los datos
   if (isLoading) {
@@ -333,20 +278,12 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                 Exportar
               </Button>
             </ExportDialog>
-            <ImportConfirmationDialog
-              onConfirm={handleImportGames}
-              isLoading={isImporting}
-            >
-              <Button variant="outline" size="sm" disabled={isImporting}>
-                <ButtonLoading
-                  isLoading={isImporting}
-                  loadingText="Importando..."
-                >
-                  <UploadIcon className="mr-2 size-4" />
-                  Importar
-                </ButtonLoading>
+            <ImportDialog onImportComplete={handleImportComplete}>
+              <Button variant="outline" size="sm">
+                <UploadIcon className="mr-2 size-4" />
+                Importar
               </Button>
-            </ImportConfirmationDialog>
+            </ImportDialog>
           </div>
         </div>
       </div>
@@ -596,14 +533,20 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
             <div className="text-sm text-muted-foreground">
               Tip: Haz clic en el nombre de una plantilla para editarla
             </div>
-            <QuickExportButton
-              templates={gametemplates}
-              type="templates"
-              format="json"
-            >
-              <DownloadIcon className="mr-2 size-3" />
-              Backup rápido
-            </QuickExportButton>
+            <div className="flex items-center gap-2">
+              <QuickExportButton
+                templates={gametemplates}
+                type="templates"
+                format="json"
+              >
+                <DownloadIcon className="mr-2 size-3" />
+                Backup rápido
+              </QuickExportButton>
+              <QuickImportButton onImportComplete={handleImportComplete}>
+                <UploadIcon className="mr-2 size-3" />
+                Importar rápido
+              </QuickImportButton>
+            </div>
           </div>
           <Button className="gap-2">
             <Link

@@ -4,9 +4,9 @@
 
 **Última Actualización**: Diciembre 2024  
 **Total de Tareas**: 50  
-**Completadas**: 40 (80%)  
+**Completadas**: 41 (82%)  
 **En Progreso**: 0 (0%)  
-**Pendientes**: 10 (20%)
+**Pendientes**: 9 (18%)
 
 ## Tareas por Prioridad
 
@@ -76,14 +76,16 @@ _No hay tareas en progreso actualmente._
   - **Archivos**: `src/lib/export-utils.ts`, `src/components/ui/export-dialog.tsx`, `src/lib/tournament-history.ts`
   - **Características**: Sistema completo de exportación con diálogo intuitivo, múltiples formatos (JSON/CSV), exportación de plantillas/historial/estadísticas/backup completo, botones de exportación rápida
 
-- [ ] **TASK-007**: Añadir importación de plantillas
+- [x] **TASK-007**: Sistema de importación de plantillas ✅ COMPLETADO
 
-  - **Descripción**: Permitir importar plantillas desde archivos JSON
+  - **Descripción**: Sistema completo de importación con validación robusta, manejo de conflictos y múltiples estrategias
   - **Asignado a**: Desarrollo
   - **Estimación**: 2 días
-  - **Estado**: Pendiente
+  - **Estado**: Completado
   - **Dependencias**: TASK-006
   - **Prioridad**: Media
+  - **Archivos**: `src/lib/import-utils.ts`, `src/components/ui/import-dialog.tsx`
+  - **Características**: 4 estrategias de importación (merge, replace, skip, rename), detección de conflictos, backup automático en localStorage, validación robusta, interfaz paso a paso, botón de importación rápida
 
 - [ ] **TASK-008**: Crear sistema de plantillas predefinidas
 
