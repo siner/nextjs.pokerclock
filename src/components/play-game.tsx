@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { KeyboardShortcutsHelp } from "@/components/ui/keyboard-shortcuts-help";
 import {
   Select,
   SelectContent,
@@ -37,6 +39,7 @@ import {
   TrendingUpIcon,
   ArrowLeftIcon,
   HomeIcon,
+  KeyboardIcon,
 } from "lucide-react";
 import {
   ResetConfirmationDialog,
@@ -69,6 +72,7 @@ export default function PlayGame(params: { template: string }) {
   const [nextLevel, setNextLevel] = useState<Level | null>();
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
 
   let gameTemplates = [] as GameTemplate[];
   if (typeof window !== "undefined") {
@@ -419,6 +423,38 @@ export default function PlayGame(params: { template: string }) {
     }
   }
 
+  function goToNextLevel() {
+    if (levelIndex < levels.length - 1) {
+      setLevelIndex(levelIndex + 1);
+      toast({
+        title: "Nivel avanzado",
+        description: `Avanzado al nivel ${levelIndex + 2}`,
+      });
+    } else {
+      toast({
+        title: "Último nivel",
+        description: "Ya estás en el último nivel del torneo",
+        variant: "destructive",
+      });
+    }
+  }
+
+  function goToPreviousLevel() {
+    if (levelIndex > 0) {
+      setLevelIndex(levelIndex - 1);
+      toast({
+        title: "Nivel retrocedido",
+        description: `Retrocedido al nivel ${levelIndex}`,
+      });
+    } else {
+      toast({
+        title: "Primer nivel",
+        description: "Ya estás en el primer nivel del torneo",
+        variant: "destructive",
+      });
+    }
+  }
+
   async function finishTournament() {
     if (!game.id || timer === 0) {
       toast({
@@ -755,6 +791,77 @@ export default function PlayGame(params: { template: string }) {
     );
   }
 
+  // Configurar atajos de teclado
+  useKeyboardShortcuts(
+    {
+      space: () => {
+        if (game.id) {
+          togglePlaying();
+        }
+      },
+      r: () => {
+        if (game.id) {
+          resetGame();
+        }
+      },
+      n: () => {
+        if (game.id) {
+          goToNextLevel();
+        }
+      },
+      p: () => {
+        if (game.id) {
+          goToPreviousLevel();
+        }
+      },
+      plus: () => {
+        if (game.id) {
+          addPlayer();
+        }
+      },
+      minus: () => {
+        if (game.id && players > 0) {
+          removePlayer();
+        }
+      },
+      "ctrl+plus": () => {
+        if (game.id) {
+          addEntry();
+        }
+      },
+      "ctrl+minus": () => {
+        if (game.id && entries > 0) {
+          removeEntry();
+        }
+      },
+      a: () => {
+        if (game.id) {
+          addAddon();
+        }
+      },
+      "shift+a": () => {
+        if (game.id) {
+          addDoubleAddon();
+        }
+      },
+      f: () => {
+        if (game.id && timer > 0) {
+          finishTournament();
+        }
+      },
+      "?": () => {
+        setShowShortcutsHelp(true);
+      },
+      "shift+/": () => {
+        setShowShortcutsHelp(true);
+      },
+    },
+    {
+      enabled: true,
+      preventDefault: true,
+    }
+  );
+
   // Memoizar el cálculo de premios
   const calculatedPrizes = useMemo(() => {
     if (!currentStructurePrizes.prizes?.length) {
@@ -838,38 +945,52 @@ export default function PlayGame(params: { template: string }) {
             <div className="order-3 mt-5 flex w-full items-center justify-between gap-4 md:order-1 md:mt-0">
               {/* Controles de torneo */}
               <div className="flex w-full items-center justify-between gap-2">
-                {timer > 0 && players > 0 && (
-                  <ConfirmationDialog
-                    title="Finalizar torneo"
-                    description="¿Quieres finalizar el torneo y guardarlo en el historial?"
-                    onConfirm={finishTournament}
-                    variant="info"
-                    type="custom"
-                    confirmText="Finalizar"
-                  >
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="border-green-600 bg-green-600 text-white hover:border-green-700 hover:bg-green-700"
+                <div className="flex items-center gap-2">
+                  {timer > 0 && players > 0 && (
+                    <ConfirmationDialog
                       title="Finalizar torneo"
+                      description="¿Quieres finalizar el torneo y guardarlo en el historial?"
+                      onConfirm={finishTournament}
+                      variant="info"
+                      type="custom"
+                      confirmText="Finalizar"
                     >
-                      <SquareIcon className="size-4 md:mr-2" />
-                      <span className="hidden md:inline">Finalizar</span>
-                    </Button>
-                  </ConfirmationDialog>
-                )}
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="border-green-600 bg-green-600 text-white hover:border-green-700 hover:bg-green-700"
+                        title="Finalizar torneo"
+                      >
+                        <SquareIcon className="size-4 md:mr-2" />
+                        <span className="hidden md:inline">Finalizar</span>
+                      </Button>
+                    </ConfirmationDialog>
+                  )}
 
-                <ResetConfirmationDialog onConfirm={resetGame}>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="bg-red-600 text-white hover:bg-red-700"
-                    title="Reiniciar torneo"
-                  >
-                    <RotateCcw className="size-4 md:mr-2" />
-                    <span className="hidden md:inline">Reset</span>
-                  </Button>
-                </ResetConfirmationDialog>
+                  <ResetConfirmationDialog onConfirm={resetGame}>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="bg-red-600 text-white hover:bg-red-700"
+                      title="Reiniciar torneo"
+                    >
+                      <RotateCcw className="size-4 md:mr-2" />
+                      <span className="hidden md:inline">Reset</span>
+                    </Button>
+                  </ResetConfirmationDialog>
+                </div>
+
+                {/* Botón de ayuda de atajos */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowShortcutsHelp(true)}
+                  className="border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
+                  title="Ver atajos de teclado (Presiona ?)"
+                >
+                  <KeyboardIcon className="size-4 md:mr-2" />
+                  <span className="hidden md:inline">Atajos</span>
+                </Button>
               </div>
             </div>
 
@@ -1321,6 +1442,12 @@ export default function PlayGame(params: { template: string }) {
           </div>
         )}
         <audio ref={audioPlayer} src={Notification} />
+
+        {/* Diálogo de ayuda de atajos de teclado */}
+        <KeyboardShortcutsHelp
+          open={showShortcutsHelp}
+          onOpenChange={setShowShortcutsHelp}
+        />
       </div>
     </LoadingOverlay>
   );

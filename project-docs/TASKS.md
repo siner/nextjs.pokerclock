@@ -4,10 +4,10 @@
 
 **Última Actualización**: Diciembre 2024  
 **Total de Tareas**: 51  
-**Completadas**: 46 (90%)  
+**Completadas**: 47 (92%)  
 **Correcciones Críticas**: 10  
 **En Progreso**: 0 (0%)  
-**Pendientes**: 5 (10%)
+**Pendientes**: 4 (8%)
 
 ## Tareas por Prioridad
 
@@ -135,14 +135,16 @@ _No hay tareas en progreso actualmente._
   - **Archivos**: `src/app/page.tsx`
   - **Características**: Hero section con gradientes, Cards de navegación interactivas, sección de características, guía rápida paso a paso, diseño responsive completo, efectos hover y animaciones
 
-- [ ] **TASK-010**: Añadir atajos de teclado
+- [x] **TASK-010**: Añadir atajos de teclado ✅ COMPLETADO
 
   - **Descripción**: Shortcuts para acciones comunes (space para play/pause, etc.)
   - **Asignado a**: Desarrollo
   - **Estimación**: 1 día
-  - **Estado**: Pendiente
+  - **Estado**: Completado
   - **Dependencias**: Ninguna
   - **Prioridad**: Baja
+  - **Archivos**: `src/hooks/use-keyboard-shortcuts.ts`, `src/components/ui/keyboard-shortcuts-help.tsx`, `src/components/play-game.tsx`
+  - **Características**: Hook personalizado para atajos, diálogo de ayuda, 13 atajos implementados (space, r, n, p, +, -, ctrl++, ctrl+-, a, shift+a, f, ?, shift+/), navegación manual de niveles, botón de ayuda en header
 
 - [ ] **TASK-011**: Implementar modo presentación
 
