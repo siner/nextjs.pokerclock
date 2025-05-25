@@ -45,7 +45,7 @@ export default function PlayGame(params: { template: string }) {
   // Función para calcular el nivel actual basado en el tiempo transcurrido
   function calculateCurrentLevelIndex(
     elapsedSeconds: number,
-    levels: any[]
+    levels: { time: number }[]
   ): number {
     if (elapsedSeconds === 0 || levels.length === 0) {
       return 0;
@@ -159,7 +159,7 @@ export default function PlayGame(params: { template: string }) {
 
   const currentPrizeStructure = useMemo(() => {
     if (!game?.prize_structures?.length) {
-      return {} as any;
+      return { max_players: 0, prizes: [] };
     }
 
     const sortedStructures = [...game.prize_structures].sort(

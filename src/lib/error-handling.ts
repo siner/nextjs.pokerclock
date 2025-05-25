@@ -110,9 +110,11 @@ export class ErrorHandler {
 
   private loadErrorLogs(): void {
     try {
-      const stored = localStorage.getItem("errorLogs");
-      if (stored) {
-        this.errorLogs = JSON.parse(stored);
+      if (typeof window !== "undefined" && window.localStorage) {
+        const stored = localStorage.getItem("errorLogs");
+        if (stored) {
+          this.errorLogs = JSON.parse(stored);
+        }
       }
     } catch (error) {
       console.warn("Failed to load error logs from localStorage:", error);
@@ -122,11 +124,13 @@ export class ErrorHandler {
 
   private saveErrorLogs(): void {
     try {
-      // Keep only last 50 errors to avoid storage bloat
-      if (this.errorLogs.length > 50) {
-        this.errorLogs = this.errorLogs.slice(-50);
+      if (typeof window !== "undefined" && window.localStorage) {
+        // Keep only last 50 errors to avoid storage bloat
+        if (this.errorLogs.length > 50) {
+          this.errorLogs = this.errorLogs.slice(-50);
+        }
+        localStorage.setItem("errorLogs", JSON.stringify(this.errorLogs));
       }
-      localStorage.setItem("errorLogs", JSON.stringify(this.errorLogs));
     } catch (error) {
       console.warn("Failed to save error logs to localStorage:", error);
     }
@@ -428,6 +432,9 @@ export class DataRecovery {
 export class SafeStorage {
   static getItem<T>(key: string, defaultValue: T): T {
     try {
+      if (typeof window === "undefined" || !window.localStorage) {
+        return defaultValue;
+      }
       const item = localStorage.getItem(key);
       if (item === null) return defaultValue;
       return JSON.parse(item);
@@ -443,6 +450,9 @@ export class SafeStorage {
 
   static setItem(key: string, value: unknown): boolean {
     try {
+      if (typeof window === "undefined" || !window.localStorage) {
+        return false;
+      }
       localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (error) {
@@ -457,6 +467,9 @@ export class SafeStorage {
 
   static removeItem(key: string): boolean {
     try {
+      if (typeof window === "undefined" || !window.localStorage) {
+        return false;
+      }
       localStorage.removeItem(key);
       return true;
     } catch (error) {
@@ -471,6 +484,9 @@ export class SafeStorage {
 
   static clear(): boolean {
     try {
+      if (typeof window === "undefined" || !window.localStorage) {
+        return false;
+      }
       localStorage.clear();
       return true;
     } catch (error) {
