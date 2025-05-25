@@ -3,10 +3,11 @@
 ## Estado General de Tareas
 
 **Última Actualización**: Diciembre 2024  
-**Total de Tareas**: 50  
-**Completadas**: 41 (82%)  
+**Total de Tareas**: 51  
+**Completadas**: 46 (90%)  
+**Correcciones Críticas**: 10  
 **En Progreso**: 0 (0%)  
-**Pendientes**: 9 (18%)
+**Pendientes**: 5 (10%)
 
 ## Tareas por Prioridad
 
@@ -87,26 +88,52 @@ _No hay tareas en progreso actualmente._
   - **Archivos**: `src/lib/import-utils.ts`, `src/components/ui/import-dialog.tsx`
   - **Características**: 4 estrategias de importación (merge, replace, skip, rename), detección de conflictos, backup automático en localStorage, validación robusta, interfaz paso a paso, botón de importación rápida
 
-- [ ] **TASK-008**: Crear sistema de plantillas predefinidas
+- [x] **TASK-008**: Crear sistema de plantillas predefinidas ✅ COMPLETADO
 
-  - **Descripción**: Biblioteca de estructuras de torneo populares
+  - **Descripción**: Biblioteca de estructuras de torneo populares con interfaz completa de exploración
   - **Asignado a**: Desarrollo
   - **Estimación**: 4 días
-  - **Estado**: Pendiente
+  - **Estado**: Completado
   - **Dependencias**: Ninguna
   - **Prioridad**: Media
+  - **Archivos**: `src/lib/predefined-templates.ts`, `src/components/ui/predefined-templates-dialog.tsx`
+  - **Características**: 9 plantillas predefinidas (Sit&Go, MTT, Turbo, Hyper-Turbo, Deepstack, Bounty, Satellite, Freeroll), sistema de filtros y búsqueda, vista previa detallada, categorización por dificultad, integración completa en tabla de plantillas
 
-- [ ] **TASK-009**: Implementar historial de torneos
-  - **Descripción**: Guardar y mostrar historial de torneos completados
+- [x] **TASK-009**: Implementar historial de torneos ✅ COMPLETADO
+  - **Descripción**: Sistema completo de historial con guardado automático, estadísticas y gestión
   - **Asignado a**: Desarrollo
   - **Estimación**: 3 días
-  - **Estado**: Pendiente
+  - **Estado**: Completado
   - **Dependencias**: Ninguna
   - **Prioridad**: Media
+  - **Archivos**: `src/lib/tournament-history.ts`, `src/components/history-page-client.tsx`, `src/app/history/page.tsx`, `src/types/index.ts`, `src/components/play-game.tsx`
+  - **Características**: Guardado automático al finalizar torneos, estadísticas completas (total torneos, jugadores, botes, duración promedio), filtros avanzados (fecha, jugadores, nombre), exportación/importación JSON, vista detallada de torneos, eliminación individual y limpieza completa, integración con botón "Finalizar" en el reloj
 
 ### 🟢 Prioridad Baja (Mejoras)
 
 #### Pendientes
+
+- [x] **TASK-018**: Mejoras de estética y usabilidad del PlayGame ✅ COMPLETADO
+
+  - **Descripción**: Rediseño completo de la interfaz del reloj de poker con Cards, gradientes y mejor organización visual
+  - **Asignado a**: Desarrollo
+  - **Estimación**: 1 día
+  - **Estado**: Completado
+  - **Dependencias**: Ninguna
+  - **Prioridad**: Media
+  - **Archivos**: `src/components/play-game.tsx`
+  - **Características**: Cards con gradientes para todas las secciones, iconos contextuales, mejor organización del layout, controles más intuitivos, información del bote estructurada, indicadores de estado mejorados
+
+- [x] **TASK-019**: Rediseño completo de la página de inicio ✅ COMPLETADO
+
+  - **Descripción**: Transformación de la página de inicio con diseño moderno, Cards de navegación, gradientes y mejor UX
+  - **Asignado a**: Desarrollo
+  - **Estimación**: 1 día
+  - **Estado**: Completado
+  - **Dependencias**: Ninguna
+  - **Prioridad**: Media
+  - **Archivos**: `src/app/page.tsx`
+  - **Características**: Hero section con gradientes, Cards de navegación interactivas, sección de características, guía rápida paso a paso, diseño responsive completo, efectos hover y animaciones
 
 - [ ] **TASK-010**: Añadir atajos de teclado
 
@@ -156,14 +183,16 @@ _No hay tareas en progreso actualmente._
   - **Características**: Dashboard con 3 estadísticas clave, tabla responsive, botones siempre visibles, formato €, información adicional en móvil
   - **Mejoras aplicadas**: Eliminada columna "Tipo", botones visibles en móvil, formato de moneda simplificado, diseño responsive mejorado
 
-- [ ] **TASK-017**: Integración visual del bono de puntualidad en el reloj
-  - **Descripción**: Mostrar tiempo límite para bono, indicador visual, notificaciones de expiración
+- [x] **TASK-017**: Integración visual del bono de puntualidad en el reloj ✅ COMPLETADO
+  - **Descripción**: Sistema completo de indicadores visuales y notificaciones para el bono de puntualidad
   - **Asignado a**: Desarrollo
   - **Estimación**: 2 días
-  - **Estado**: Pendiente
+  - **Estado**: Completado
   - **Dependencias**: TASK-015
   - **Prioridad**: Baja
-  - **Notas**: Funcionalidad base completada, pendiente integración en reloj
+  - **Archivos**: `src/components/play-game.tsx`, `src/types/index.ts`
+  - **Características**: Indicador visual dinámico (verde/naranja/rojo), cálculo automático del tiempo restante, notificación sonora a los 30 segundos, animación parpadeante cuando expira, integración completa en el reloj principal
+  - **Corrección**: Solucionado problema donde el indicador no aparecía al inicio del torneo
 
 ## Tareas Completadas ✅
 
@@ -316,22 +345,244 @@ _No hay tareas en progreso actualmente._
 3. **Compatibilidad**: Algunas funciones pueden no funcionar en navegadores antiguos
 4. **UX**: La aplicación puede ser compleja para usuarios no técnicos
 
+## Correcciones Recientes
+
+### ✅ CORRECCIÓN-010: Navegación Consistente en Todas las Páginas
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Implementación de navegación consistente en todas las páginas principales de la aplicación
+- **Problema**: Faltaban botones de navegación en el historial de torneos y la navegación no era consistente entre páginas
+- **Solución**:
+  - Añadidos botones de navegación en la página de historial de torneos
+  - Mejorado el header de la página de plantillas con navegación consistente
+  - Implementado el mismo estilo de botones en todas las páginas
+  - Añadidos tooltips descriptivos para mejor UX
+  - Responsive design: texto oculto en móviles, iconos siempre visibles
+- **Archivos Modificados**:
+  - `src/components/history-page-client.tsx` - Header con navegación completa
+  - `src/components/gametemplates-page-client.tsx` - Header mejorado y consistente
+- **Características Nuevas**:
+  - **Página de Historial**: Botones "Inicio" y "Plantillas" en el header
+  - **Página de Plantillas**: Botones "Inicio" e "Historial" en el header
+  - Títulos mejorados con descripciones contextuales
+  - Layout consistente: navegación (izquierda), título (centro), controles (derecha)
+  - Iconos semánticos: HomeIcon, ArrowLeftIcon, HistoryIcon
+- **Mejoras de UX**:
+  - Navegación intuitiva desde cualquier página
+  - Estilo visual consistente en toda la aplicación
+  - Tooltips informativos en todos los botones
+  - Responsive design optimizado
+  - Headers más informativos con descripciones
+- **Impacto**: Navegación fluida y consistente en toda la aplicación, mejor experiencia de usuario
+
+### ✅ CORRECCIÓN-009: Mejora del Header y Botones de Control
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Rediseño completo del header con botones de control mejorados y navegación intuitiva
+- **Problema**: Los botones del header tenían diseño inconsistente, faltaba navegación y no eran responsive
+- **Solución**:
+  - Añadidos botones de navegación: "Volver" (a plantillas) e "Inicio"
+  - Reorganizado el header en dos secciones: navegación (izquierda) y controles de torneo (derecha)
+  - Mejorado el diseño visual con colores específicos (verde para finalizar, rojo para reset)
+  - Implementado responsive design: texto oculto en móviles, solo iconos
+  - Añadidos tooltips informativos para mejor UX
+  - Reducido gaps y mejorado espaciado general
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Header y botones de control
+- **Características Nuevas**:
+  - Botón "Volver" con icono ArrowLeft para regresar a plantillas
+  - Botón "Inicio" con icono Home para ir al dashboard
+  - Botón "Finalizar" con color verde y confirmación
+  - Botón "Reset" con color rojo y confirmación
+  - Responsive: texto visible solo en md+, iconos siempre visibles
+  - Tooltips descriptivos en todos los botones
+- **Mejoras de UX**:
+  - Navegación más intuitiva y accesible
+  - Colores semánticos para acciones (verde=completar, rojo=destructivo)
+  - Mejor organización visual del header
+  - Experiencia móvil optimizada
+- **Impacto**: Header más funcional, navegación mejorada y mejor experiencia de usuario
+
+### ✅ CORRECCIÓN-008: Integración de Controles en el Cronómetro
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Integración de los controles de play/pause directamente en la Card del cronómetro para mejor UX
+- **Problema**: Los controles de play/pause estaban separados del cronómetro, ocupando espacio innecesario y creando desconexión visual
+- **Solución**:
+  - Eliminada la Card separada de "Controles principales"
+  - Integrados los controles directamente en la Card del cronómetro
+  - Cronómetro clickeable cuando está corriendo (hover effect + tooltip)
+  - Botón "Iniciar Torneo" cuando timer = 0
+  - Indicadores visuales contextuales ("Click para pausar/reanudar")
+  - Título dinámico: "Cronómetro" vs "Tiempo Transcurrido"
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Integración de controles en cronómetro
+- **Características Nuevas**:
+  - Cronómetro interactivo con hover effect (scale-105)
+  - Tooltips informativos para mejor UX
+  - Controles contextuales según el estado del timer
+  - Interfaz más limpia y compacta
+  - Mejor flujo de interacción usuario-cronómetro
+- **Impacto**: UX más intuitiva, interfaz más limpia y controles más accesibles
+
+### ✅ CORRECCIÓN-007: Desalineación Visual de Cards en PlayGame
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección de la desalineación visual entre las Cards de las columnas laterales y central
+- **Problema**: Las Cards de la columna central no estaban alineadas visualmente con las Cards de las columnas laterales debido a diferencias en espaciado y padding
+- **Solución**:
+  - Unificado el espaciado vertical de `space-y-4` a `space-y-6` en todas las columnas
+  - Estandarizado el padding de todas las Cards a `p-5` (antes había `p-6` y `p-8` en algunas)
+  - Envuelto el botón de controles principales en una Card para mantener consistencia visual
+  - Aplicado el mismo estilo de Card a todos los elementos de la columna central
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Espaciado y padding consistente en todas las Cards
+- **Características Mejoradas**:
+  - Alineación visual perfecta entre todas las columnas
+  - Espaciado consistente en toda la interfaz
+  - Padding uniforme en todas las Cards
+  - Botón de controles integrado en Card para consistencia
+- **Impacto**: Interfaz más pulida y profesional con alineación visual perfecta
+
+### ✅ CORRECCIÓN-006: Lógica Incorrecta de Selección de Estructura de Premios
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección crítica en la lógica de selección de estructura de premios según el número de jugadores
+- **Problema**: La lógica siempre seleccionaba la estructura con más jugadores en lugar de la más apropiada. Por ejemplo, con estructuras para 9 y 15 jugadores, siempre mostraba la de 15 incluso con 5 jugadores
+- **Solución**:
+  - Cambiado el ordenamiento de estructuras de mayor a menor (`b.max_players - a.max_players`) a menor a mayor (`a.max_players - b.max_players`)
+  - Corregida la lógica para seleccionar la estructura más pequeña que pueda acomodar al número actual de jugadores
+  - Añadido indicador visual que muestra qué estructura se está usando ("Estructura para máx. X jugadores")
+  - Añadidos logs de debug temporales para verificar la selección correcta
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Lógica de selección de estructura de premios y indicador visual
+- **Características Corregidas**:
+  - Selección correcta de estructura de premios según número de jugadores
+  - Indicador visual de qué estructura se está usando
+  - Logs de debug para verificar la lógica
+- **Ejemplo de Corrección**:
+  - **Antes**: Con 5 jugadores y estructuras para 9 y 15, mostraba la de 15
+  - **Después**: Con 5 jugadores y estructuras para 9 y 15, muestra la de 9
+- **Impacto**: Los premios ahora se calculan correctamente según el número real de jugadores
+
+### ✅ CORRECCIÓN-005: Inconsistencias de Layout y Espaciado en PlayGame
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección de inconsistencias de espaciado, padding y layout en el componente PlayGame
+- **Problema**: Espaciado inconsistente entre secciones, anchos desbalanceados, padding diferente en Cards, gaps variables
+- **Solución**:
+  - Unificado el espaciado con `space-y-6` en la sección principal y `space-y-4` en subsecciones
+  - Corregido el balance de anchos: laterales `w-1/5` y central `w-3/5` para mejor proporción
+  - Estandarizado padding a `p-5` en todas las Cards principales y `p-6` para el cronómetro
+  - Añadido `gap-6` consistente en el layout principal
+  - Mejorado el espaciado del header con `space-y-6`
+  - Corregido margin bottom inconsistente en controles inferiores (`mt-8` en lugar de `my-10`)
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Layout principal, espaciado y padding consistente
+- **Características Mejoradas**:
+  - Layout más equilibrado y profesional
+  - Espaciado consistente en todas las secciones
+  - Mejor proporción entre columnas laterales y central
+  - Padding uniforme en todas las Cards
+- **Impacto**: Interfaz más pulida y profesional con espaciado consistente
+
+### ✅ CORRECCIÓN-004: Campo Bounty no se Guardaba en localStorage
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección del problema donde el campo bounty no se guardaba correctamente en localStorage
+- **Problema**: El campo `bounty` se perdía al guardar plantillas y juegos porque no estaba incluido en el sistema de validación y recuperación de datos
+- **Solución**:
+  - Añadido campo `bounty` en la función `validateSingleTemplate` del sistema de error handling
+  - Añadido campo `bounty` en la función `validateCurrentGame` para juegos activos
+  - Ambas funciones ahora incluyen `bounty: Number(obj.bounty) || 0` en la recuperación de datos
+- **Archivos Modificados**:
+  - `src/lib/error-handling.ts` - Añadido bounty en validación de plantillas y juegos
+  - `src/components/tables/gametemplates-table.tsx` - Eliminado console.log de debug
+- **Características Corregidas**:
+  - El campo bounty se guarda y recupera correctamente en plantillas
+  - El campo bounty se mantiene al crear juegos desde plantillas
+  - El sistema de validación incluye bounty con valor por defecto 0
+- **Impacto**: Los torneos bounty ahora funcionan correctamente y mantienen la información del bounty
+
+### ✅ CORRECCIÓN-003: Indicador Visual del Bono de Puntualidad
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección del problema donde el indicador del bono de puntualidad no aparecía al inicio del torneo
+- **Problema**: El indicador visual del bono de puntualidad desaparecía y no se mostraba cuando se iniciaba un torneo con bono configurado
+- **Solución**:
+  - Corregida la lógica del cálculo `punctualityBonusStatus` para manejar correctamente el estado inicial (timer = 0)
+  - Añadida condición especial para mostrar el bono como disponible cuando no hay duración del primer nivel cargada
+  - Mejorada la condición de "expirado" para que solo se active si el timer ha empezado (timer > 0)
+  - Añadido mensaje especial para cuando el torneo no ha iniciado: "🚀 ¡Inicia el torneo para activar el bono!"
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Lógica del cálculo del estado del bono y visualización
+- **Características Mejoradas**:
+  - El indicador aparece correctamente desde el momento que se selecciona una plantilla con bono
+  - Mensaje contextual diferente cuando el torneo no ha iniciado vs cuando está corriendo
+  - Lógica más robusta para determinar cuándo el bono está disponible, expirando o expirado
+- **Impacto**: Los usuarios ahora pueden ver inmediatamente si un torneo tiene bono de puntualidad configurado
+
+### ✅ CORRECCIÓN-002: Implementación de Campos Bounty y Extrapot
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Implementación completa de campos bounty y redefinición del extrapot para soportar torneos bounty y freeroll
+- **Problema**: Las plantillas de Bounty y Freeroll no se ajustaban a la estructura actual del sistema
+- **Solución**:
+  - Añadido campo `bounty` opcional para torneos con recompensas por eliminación
+  - Redefinido `extrapot` como bote extra añadido al prize pool (ej: patrocinio)
+  - Actualizado formulario de creación con nuevo campo bounty
+  - Mejorado reloj para mostrar información de bounty y extrapot
+  - Actualizado cálculo del bote real para incluir extrapot
+  - Añadidas validaciones completas para el campo bounty
+- **Archivos Modificados**:
+  - `src/types/index.ts` - Añadido campo bounty
+  - `src/lib/validations.ts` - Validaciones para bounty
+  - `src/app/gametemplates/gametemplate-form.tsx` - Campo bounty en formulario
+  - `src/components/ui/form-section.tsx` - Soporte para 5 columnas
+  - `src/components/play-game.tsx` - Visualización de bounty y extrapot
+  - `src/lib/predefined-templates.ts` - Plantillas actualizadas
+- **Características Nuevas**:
+  - Campo bounty con validaciones (no negativo, advertencia si > entrada)
+  - Visualización en reloj con colores distintivos (verde para extrapot, naranja para bounty)
+  - Cálculo correcto del bote real incluyendo extrapot
+  - Formulario reorganizado: bounty junto al buy-in (más lógico conceptualmente)
+- **Impacto**: Soporte completo para torneos bounty y freeroll con patrocinio
+
+### ✅ CORRECCIÓN-001: Estructuras de Antes en Plantillas Predefinidas
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección de todas las estructuras de antes en plantillas predefinidas para seguir el estándar moderno del poker
+- **Problema**: Los antes tenían valores inconsistentes (100, 150, 200, etc.) en lugar del valor estándar de la ciega grande
+- **Solución**: Actualizado todas las plantillas para que el ante sea igual al valor de la ciega grande (BB ante)
+- **Archivos Modificados**: `src/lib/predefined-templates.ts`
+- **Plantillas Corregidas**:
+  - Sit & Go Clásico 9 Jugadores
+  - Sit & Go Turbo 6-Max
+  - MTT Clásico - Estructura Lenta
+  - Turbo Express
+  - Hyper Turbo Lightning
+  - Deepstack Marathon
+  - Bounty Hunter
+  - Satellite Qualifier
+  - Freeroll Semanal
+- **Impacto**: Mejora la precisión y realismo de las estructuras de torneo predefinidas
+
 ## Próximos Pasos Inmediatos
 
 ### Esta Semana
 
-1. Completar TASK-001 (validaciones robustas)
-2. Avanzar en TASK-002 (manejo de errores)
-3. Iniciar TASK-003 (confirmaciones)
+1. Continuar con TASK-009 (historial de torneos)
+2. Evaluar TASK-010 (atajos de teclado)
+3. Revisar TASK-017 (integración visual del bono de puntualidad)
 
 ### Próxima Semana
 
-1. Completar TASK-002 y TASK-003
-2. Iniciar TASK-004 (estados de carga)
-3. Planificar TASK-005 (optimización de rendimiento)
+1. Completar tareas de prioridad baja pendientes
+2. Iniciar mejoras de UX adicionales
+3. Preparar documentación de usuario
 
 ### Este Mes
 
-1. Completar todas las tareas de prioridad alta
-2. Iniciar tareas de prioridad media
-3. Preparar release v0.2.0
+1. Completar todas las tareas pendientes
+2. Realizar testing exhaustivo
+3. Preparar release v1.0.0

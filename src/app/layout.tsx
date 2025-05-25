@@ -35,7 +35,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="flex flex-col items-start justify-items-start p-4 pb-20 font-[family-name:var(--font-geist-sans)] text-foreground sm:p-10">
-            <div className="flex w-full items-center justify-end">
+            <div className="mb-4 flex w-full items-center justify-end">
               <ThemeToggle />
             </div>
             {children}

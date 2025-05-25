@@ -20,6 +20,7 @@ export interface FormGameTemplate {
   entry?: string | number;
   fee?: string | number;
   bubble?: string | number;
+  bounty?: string | number;
   points?: string;
   extrapot?: string | number;
   addon_price?: string | number;
@@ -221,6 +222,40 @@ export function validateBasicFields(
         field: "bubble",
         message: "El premio de burbuja no puede ser negativo",
         type: "error",
+      });
+    }
+  }
+
+  // Bounty
+  if (!isEmpty(template.bounty)) {
+    const bounty = toNumber(template.bounty);
+    if (isNaN(bounty)) {
+      errors.push({
+        field: "bounty",
+        message: "El bounty debe ser un número válido",
+        type: "error",
+      });
+    } else if (bounty < 0) {
+      errors.push({
+        field: "bounty",
+        message: "El bounty no puede ser negativo",
+        type: "error",
+      });
+    } else if (bounty > VALIDATION_CONSTANTS.MAX_ENTRY) {
+      errors.push({
+        field: "bounty",
+        message: `El bounty no puede exceder ${VALIDATION_CONSTANTS.MAX_ENTRY}€`,
+        type: "error",
+      });
+    }
+
+    // Advertencia si el bounty es muy alto comparado con la entrada
+    const entry = toNumber(template.entry);
+    if (!isNaN(entry) && bounty > entry) {
+      errors.push({
+        field: "bounty",
+        message: "El bounty es mayor que la entrada. ¿Es esto intencional?",
+        type: "warning",
       });
     }
   }

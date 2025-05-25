@@ -275,7 +275,7 @@ export default function GameTemplateForm({
           description="Configuración general del torneo"
           icon={<FileText className="h-5 w-5" />}
         >
-          <FormGrid columns={2}>
+          <FormGrid columns={3}>
             <EnhancedInput
               label="Nombre del Torneo"
               required
@@ -303,6 +303,21 @@ export default function GameTemplateForm({
               error={errorMap["entry"]}
               warning={warningMap["entry"]}
               tooltip="Coste de entrada al torneo en euros"
+            />
+
+            <MoneyInput
+              label="Bounty"
+              placeholder="0.00"
+              value={String(newGameTemplate.bounty || "")}
+              onValueChange={(value) =>
+                setnewGameTemplate({
+                  ...newGameTemplate,
+                  bounty: Number(value) || 0,
+                })
+              }
+              error={errorMap["bounty"]}
+              warning={warningMap["bounty"]}
+              tooltip="Premio por eliminar a un jugador (torneos bounty)"
             />
           </FormGrid>
 
@@ -351,7 +366,7 @@ export default function GameTemplateForm({
               }
               error={errorMap["extrapot"]}
               warning={warningMap["extrapot"]}
-              tooltip="Dinero adicional añadido al bote de premios"
+              tooltip="Dinero adicional añadido al bote de premios (ej: patrocinio)"
             />
 
             <MoneyInput

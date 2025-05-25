@@ -15,6 +15,7 @@ import {
   Calendar,
   Coins,
   Gift,
+  Target,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,10 @@ import {
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { ExportDialog, QuickExportButton } from "@/components/ui/export-dialog";
 import { ImportDialog, QuickImportButton } from "@/components/ui/import-dialog";
+import {
+  PredefinedTemplatesDialog,
+  QuickTemplateButton,
+} from "@/components/ui/predefined-templates-dialog";
 
 export default function GameTemplatesTable({ title }: { title?: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -126,14 +131,6 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
     return levels.reduce((total, level) => total + (level.time || 0), 0);
   };
 
-  const getBlindProgression = (levels: GameTemplate["levels"]) => {
-    if (!levels || levels.length < 2) return 0;
-    const firstBB = levels[0]?.bb || 0;
-    const lastBB = levels[levels.length - 1]?.bb || 0;
-    if (firstBB === 0) return 0;
-    return Math.round(((lastBB - firstBB) / firstBB) * 100);
-  };
-
   const getTotalPrizePositions = (
     prizeStructures: GameTemplate["prize_structures"]
   ) => {
@@ -141,6 +138,19 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
     return Math.max(
       ...prizeStructures.map((structure) => structure.prizes?.length || 0)
     );
+  };
+
+  const getPrizeBreakdown = (
+    prizeStructures: GameTemplate["prize_structures"]
+  ) => {
+    if (!prizeStructures || prizeStructures.length === 0) return [];
+
+    // Obtener la estructura con más jugadores (más completa)
+    const largestStructure = prizeStructures.reduce((largest, current) =>
+      current.max_players > largest.max_players ? current : largest
+    );
+
+    return largestStructure.prizes?.slice(0, 3) || []; // Solo los primeros 3 premios
   };
 
   const formatDuration = (minutes: number) => {
@@ -198,6 +208,12 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
     if (validationResult.isValid && validationResult.data) {
       setGametemplates(validationResult.data);
     }
+  };
+
+  // Función para manejar la selección de plantilla predefinida
+  const handleTemplateSelect = () => {
+    // Recargar plantillas después de agregar una predefinida
+    handleImportComplete();
   };
 
   // Mostrar loading mientras se cargan los datos
@@ -272,6 +288,12 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
           </div>
 
           <div className="flex items-center gap-2">
+            <PredefinedTemplatesDialog onTemplateSelect={handleTemplateSelect}>
+              <Button variant="outline" size="sm">
+                <Trophy className="mr-2 size-4" />
+                Plantillas
+              </Button>
+            </PredefinedTemplatesDialog>
             <ExportDialog templates={gametemplates}>
               <Button variant="outline" size="sm">
                 <DownloadIcon className="mr-2 size-4" />
@@ -313,7 +335,7 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                 <TableHead className="hidden text-center sm:table-cell">
                   <div className="flex items-center justify-center gap-2">
                     <Clock className="size-4" />
-                    Duración
+                    Duración (aprox.)
                   </div>
                 </TableHead>
                 <TableHead className="hidden text-center md:table-cell">
@@ -339,7 +361,6 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                   const duration = calculateTournamentDuration(
                     gametemplate.levels
                   );
-                  const progression = getBlindProgression(gametemplate.levels);
                   const prizePositions = getTotalPrizePositions(
                     gametemplate.prize_structures
                   );
@@ -389,15 +410,20 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                       </TableCell>
 
                       <TableCell className="text-center">
-                        <div className="font-medium">
-                          €{gametemplate.entry.toLocaleString("es-ES")}
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="font-medium">
+                            {gametemplate.entry.toLocaleString("es-ES")}€
+                          </span>
+                          {typeof gametemplate.bounty === "number" &&
+                            gametemplate.bounty > 0 && (
+                              <div className="flex items-center gap-1 text-orange-600">
+                                <Target className="size-3" />
+                                <span className="text-sm font-medium">
+                                  €{gametemplate.bounty.toLocaleString("es-ES")}
+                                </span>
+                              </div>
+                            )}
                         </div>
-                        {gametemplate.extrapot && gametemplate.extrapot > 0 && (
-                          <div className="text-xs text-green-600">
-                            +€{gametemplate.extrapot.toLocaleString("es-ES")}{" "}
-                            extra
-                          </div>
-                        )}
                       </TableCell>
 
                       <TableCell className="hidden text-center sm:table-cell">
@@ -411,39 +437,62 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
 
                       <TableCell className="hidden text-center md:table-cell">
                         <div className="space-y-1">
-                          <div className="text-sm">
+                          <div className="text-sm font-medium">
                             {gametemplate.levels?.[0]?.sb || 0}/
                             {gametemplate.levels?.[0]?.bb || 0}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            →{" "}
-                            {gametemplate.levels?.[
-                              gametemplate.levels.length - 1
-                            ]?.sb || 0}
-                            /
-                            {gametemplate.levels?.[
-                              gametemplate.levels.length - 1
-                            ]?.bb || 0}
+                            {gametemplate.levels?.[0]?.time || 0} min/nivel
                           </div>
-                          {progression > 0 && (
-                            <div className="text-xs text-green-600">
-                              +{progression}%
-                            </div>
-                          )}
                         </div>
                       </TableCell>
 
                       <TableCell className="hidden text-center lg:table-cell">
-                        <div className="flex items-center justify-center gap-1">
-                          <Users className="size-3" />
-                          <span className="font-medium">{prizePositions}</span>
-                        </div>
-                        {gametemplate.bubble && gametemplate.bubble > 0 && (
-                          <div className="text-xs text-orange-600">
-                            Burbuja: €
-                            {gametemplate.bubble.toLocaleString("es-ES")}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-center gap-1">
+                            <Users className="size-3" />
+                            <span className="font-medium">
+                              {prizePositions}
+                            </span>
                           </div>
-                        )}
+                          {(() => {
+                            const breakdown = getPrizeBreakdown(
+                              gametemplate.prize_structures
+                            );
+                            if (breakdown.length > 0) {
+                              return (
+                                <div className="text-xs text-muted-foreground">
+                                  {breakdown.map((prize, index) => (
+                                    <span key={prize.id}>
+                                      {prize.percentaje}%
+                                      {index < breakdown.length - 1
+                                        ? " • "
+                                        : ""}
+                                    </span>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+                          {typeof gametemplate.bubble === "number" &&
+                            gametemplate.bubble > 0 && (
+                              <div className="text-xs text-orange-600">
+                                Burbuja: €
+                                {gametemplate.bubble.toLocaleString("es-ES")}
+                              </div>
+                            )}
+                          {typeof gametemplate.extrapot === "number" &&
+                            gametemplate.extrapot > 0 && (
+                              <div className="text-xs text-green-600">
+                                +€
+                                {gametemplate.extrapot.toLocaleString(
+                                  "es-ES"
+                                )}{" "}
+                                extra
+                              </div>
+                            )}
+                        </div>
                       </TableCell>
 
                       <TableCell className="text-right">
@@ -495,7 +544,8 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                           No hay plantillas de torneos
                         </p>
                         <p className="text-sm">
-                          Crea tu primera plantilla para empezar
+                          Crea una plantilla o explora nuestras plantillas
+                          predefinidas
                         </p>
                       </div>
                     </div>
@@ -517,15 +567,23 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
               ciegas, premios y reglas personalizadas que podrás reutilizar.
             </p>
           </div>
-          <Button size="lg" className="gap-2">
-            <Link
-              href="/gametemplates/create"
-              className="flex items-center gap-2"
-            >
-              <PlusIcon className="size-5" />
-              Crear mi primera plantilla
-            </Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button size="lg" className="gap-2">
+              <Link
+                href="/gametemplates/create"
+                className="flex items-center gap-2"
+              >
+                <PlusIcon className="size-5" />
+                Crear mi primera plantilla
+              </Link>
+            </Button>
+            <PredefinedTemplatesDialog onTemplateSelect={handleTemplateSelect}>
+              <Button size="lg" variant="outline" className="gap-2">
+                <Trophy className="size-5" />
+                Explorar plantillas predefinidas
+              </Button>
+            </PredefinedTemplatesDialog>
+          </div>
         </div>
       ) : (
         <div className="flex items-center justify-between border-t pt-6">
@@ -534,6 +592,10 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
               Tip: Haz clic en el nombre de una plantilla para editarla
             </div>
             <div className="flex items-center gap-2">
+              <QuickTemplateButton onTemplateSelect={handleTemplateSelect}>
+                <Trophy className="mr-2 size-3" />
+                Plantilla popular
+              </QuickTemplateButton>
               <QuickExportButton
                 templates={gametemplates}
                 type="templates"
