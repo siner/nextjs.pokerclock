@@ -349,6 +349,53 @@ _No hay tareas en progreso actualmente._
 
 ## Correcciones Recientes
 
+### ✅ CORRECCIÓN-012: Actualización Dinámica de Bounties en Torneos Bounty
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección para que la cantidad de bounties se actualice dinámicamente según el número de entradas en tiempo real
+- **Problema**: En los torneos bounty, la información del bote mostraba una cantidad fija de bounties basada en `game.entries` en lugar del estado actual `entries`, por lo que no se actualizaba al añadir/quitar entradas
+- **Solución**:
+  - Cambiado `game.entries` por `entries` (estado actual) en la visualización del número de bounties
+  - Cambiado `game.entries * game.bounty` por `entries * game.bounty` en el cálculo del valor total de bounties
+  - Añadido pluralización correcta: "bounty" vs "bounties" según la cantidad
+  - La información ahora se actualiza en tiempo real al modificar las entradas
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Visualización dinámica de bounties en información del bote
+- **Características Corregidas**:
+  - Número de bounties se actualiza dinámicamente al añadir/quitar entradas
+  - Valor total de bounties se recalcula automáticamente
+  - Pluralización correcta del texto (1 bounty, 2+ bounties)
+  - Información del bote siempre refleja el estado actual del torneo
+- **Ejemplo de Funcionamiento**:
+  - **Antes**: Siempre mostraba "X bounty" con valor fijo, sin actualizarse
+  - **Después**: Muestra "5 bounties" y se actualiza a "6 bounties" al añadir una entrada
+- **Impacto**: Los torneos bounty ahora muestran información precisa y actualizada en tiempo real
+
+### ✅ CORRECCIÓN-011: Integración de Puntos de Puntualidad en Total de Fichas
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Implementación completa para que los puntos extra de puntualidad se añadan automáticamente al total de fichas cuando se añaden jugadores durante el primer nivel
+- **Problema**: Los puntos del bono de puntualidad no se reflejaban en el total de fichas ni en el stack promedio, solo se mostraba como información pero no se contabilizaba
+- **Solución**:
+  - Añadido estado `punctualityBonusPlayers` para rastrear jugadores que recibieron el bono
+  - Modificada función `addPlayer()` para detectar automáticamente si aplica el bono
+  - Creado cálculo memoizado `totalChips` que incluye fichas base + fichas de bono
+  - Actualizado stack promedio para incluir las fichas del bono
+  - Añadido desglose visual mostrando "+X puntos de bono"
+  - Integrado en sistema de guardado/carga y validación de datos
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Lógica de bono automático y visualización
+  - `src/types/index.ts` - Añadido campo `punctuality_bonus_players`
+  - `src/lib/error-handling.ts` - Validación del nuevo campo
+- **Características Nuevas**:
+  - Detección automática del bono al añadir jugadores en primer nivel
+  - Notificación toast confirmando aplicación del bono
+  - Cálculo correcto de fichas totales incluyendo bonos
+  - Stack promedio refleja la distribución real de fichas
+  - Desglose visual del bono en la interfaz
+  - Persistencia completa del estado entre sesiones
+- **Impacto**: Los torneos con bono de puntualidad ahora reflejan correctamente las fichas reales en juego
+
 ### ✅ CORRECCIÓN-010: Navegación Consistente en Todas las Páginas
 
 - **Fecha**: Diciembre 2024

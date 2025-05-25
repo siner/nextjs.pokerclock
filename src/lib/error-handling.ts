@@ -255,6 +255,7 @@ export class DataRecovery {
         double_addon_price: Number(templateObj.double_addon_price) || 0,
         double_addon_points: Number(templateObj.double_addon_points) || 0,
         punctuality_bonus: Number(templateObj.punctuality_bonus) || 0,
+        last_entry_level: Number(templateObj.last_entry_level) || undefined,
         levels: this.validateLevels(templateObj.levels),
         prize_structures: this.validatePrizeStructures(
           templateObj.prize_structures || []
@@ -374,6 +375,13 @@ export class DataRecovery {
         addon_points: Number(gameObj.addon_points) || 0,
         double_addon_price: Number(gameObj.double_addon_price) || 0,
         double_addon_points: Number(gameObj.double_addon_points) || 0,
+        punctuality_bonus: Number(gameObj.punctuality_bonus) || 0,
+        punctuality_bonus_players:
+          Number(gameObj.punctuality_bonus_players) || 0,
+        last_entry_level: Number(gameObj.last_entry_level) || undefined,
+        manual_prizes: Array.isArray(gameObj.manual_prizes)
+          ? gameObj.manual_prizes
+          : undefined,
         prize_structures: Array.isArray(gameObj.prize_structures)
           ? gameObj.prize_structures
           : [],

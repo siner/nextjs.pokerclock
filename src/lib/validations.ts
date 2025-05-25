@@ -28,6 +28,7 @@ export interface FormGameTemplate {
   double_addon_price?: string | number;
   double_addon_points?: string | number;
   punctuality_bonus?: string | number;
+  last_entry_level?: string | number;
   levels?: FormLevel[];
   prize_structures?: FormPrizeStructure[];
 }
@@ -290,6 +291,50 @@ export function validateBasicFields(
         field: "punctuality_bonus",
         message:
           "El bono de puntualidad es mayor que los puntos base. ¿Es esto intencional?",
+        type: "warning",
+      });
+    }
+  }
+
+  // Último nivel de entradas
+  if (!isEmpty(template.last_entry_level)) {
+    const lastEntryLevel = toNumber(template.last_entry_level);
+    if (isNaN(lastEntryLevel)) {
+      errors.push({
+        field: "last_entry_level",
+        message: "El último nivel de entradas debe ser un número válido",
+        type: "error",
+      });
+    } else if (lastEntryLevel < 1) {
+      errors.push({
+        field: "last_entry_level",
+        message: "El último nivel de entradas debe ser al menos 1",
+        type: "error",
+      });
+    } else if (template.levels && lastEntryLevel > template.levels.length) {
+      errors.push({
+        field: "last_entry_level",
+        message: `El último nivel de entradas no puede ser mayor que el número total de niveles (${template.levels.length})`,
+        type: "error",
+      });
+    }
+
+    // Advertencia si es muy temprano (primer nivel)
+    if (lastEntryLevel === 1) {
+      errors.push({
+        field: "last_entry_level",
+        message:
+          "Solo permitir entradas en el primer nivel puede ser muy restrictivo",
+        type: "warning",
+      });
+    }
+
+    // Advertencia si es muy tarde (más del 50% de los niveles)
+    if (template.levels && lastEntryLevel > template.levels.length * 0.5) {
+      errors.push({
+        field: "last_entry_level",
+        message:
+          "Permitir entradas hasta tan tarde en el torneo puede afectar la competitividad",
         type: "warning",
       });
     }

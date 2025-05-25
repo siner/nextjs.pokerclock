@@ -73,6 +73,7 @@ export default function PlayGame(params: { template: string }) {
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [punctualityBonusPlayers, setPunctualityBonusPlayers] = useState(0);
 
   let gameTemplates = [] as GameTemplate[];
   if (typeof window !== "undefined") {
@@ -125,6 +126,9 @@ export default function PlayGame(params: { template: string }) {
             setAddons(currentGame.addons);
             setDoubleAddons(currentGame.doubleaddons);
             setTimer(currentGame.elapsed);
+            setPunctualityBonusPlayers(
+              currentGame.punctuality_bonus_players || 0
+            );
 
             if (validationResult.recovered) {
               toast({
@@ -219,6 +223,7 @@ export default function PlayGame(params: { template: string }) {
       setEntries(0);
       setAddons(0);
       setDoubleAddons(0);
+      setPunctualityBonusPlayers(0);
       localStorage.setItem("game", JSON.stringify(newGame));
 
       toast({
@@ -281,6 +286,7 @@ export default function PlayGame(params: { template: string }) {
       addons: addons,
       doubleaddons: doubleaddons,
       elapsed: timer,
+      punctuality_bonus_players: punctualityBonusPlayers,
     } as Game;
     setGame(newGame);
 
@@ -389,6 +395,14 @@ export default function PlayGame(params: { template: string }) {
   ]);
 
   function addEntry() {
+    if (entriesStatus.closed) {
+      toast({
+        title: "Entradas cerradas",
+        description: entriesStatus.message,
+        variant: "destructive",
+      });
+      return;
+    }
     setEntries(entries + 1);
   }
   function removeEntry() {
@@ -413,13 +427,40 @@ export default function PlayGame(params: { template: string }) {
     }
   }
   function addPlayer() {
+    if (entriesStatus.closed) {
+      toast({
+        title: "Entradas cerradas",
+        description: entriesStatus.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setPlayers(players + 1);
     setEntries(entries + 1);
     setTotalPlayers(totalPlayers + 1);
+
+    // Verificar si el jugador recibe bono de puntualidad
+    if (punctualityBonusStatus.available && levelIndex === 0) {
+      setPunctualityBonusPlayers(punctualityBonusPlayers + 1);
+      toast({
+        title: "¡Bono de puntualidad aplicado!",
+        description: `Jugador añadido con ${game.punctuality_bonus?.toLocaleString("es-ES")} puntos extra`,
+      });
+    }
   }
   function removePlayer() {
     if (players > 0) {
       setPlayers(players - 1);
+
+      // Si hay jugadores con bono de puntualidad, reducir uno
+      if (punctualityBonusPlayers > 0) {
+        setPunctualityBonusPlayers(punctualityBonusPlayers - 1);
+        toast({
+          title: "Jugador eliminado",
+          description: "Se redujo un bono de puntualidad",
+        });
+      }
     }
   }
 
@@ -538,6 +579,7 @@ export default function PlayGame(params: { template: string }) {
       setEntries(0);
       setAddons(0);
       setDoubleAddons(0);
+      setPunctualityBonusPlayers(0);
       setLevels([]);
       setGame({} as Game);
       setTemplate({} as GameTemplate);
@@ -575,6 +617,54 @@ export default function PlayGame(params: { template: string }) {
 
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   }, [timer, levels, levelIndex]);
+
+  // Memoizar el cálculo del total de fichas incluyendo bono de puntualidad
+  const totalChips = useMemo(() => {
+    const baseChips = entries * parseInt(game.points || "0");
+    const bonusChips =
+      punctualityBonusPlayers *
+      parseInt(game.punctuality_bonus?.toString() || "0");
+    return baseChips + bonusChips;
+  }, [entries, game.points, punctualityBonusPlayers, game.punctuality_bonus]);
+
+  // Verificar si los addons están habilitados
+  const addonsEnabled = useMemo(() => {
+    return {
+      simple: game.addon_price > 0 && game.addon_points > 0,
+      double: game.double_addon_price > 0 && game.double_addon_points > 0,
+    };
+  }, [
+    game.addon_price,
+    game.addon_points,
+    game.double_addon_price,
+    game.double_addon_points,
+  ]);
+
+  // Memoizar el estado de las entradas (si están cerradas o no)
+  const entriesStatus = useMemo(() => {
+    const lastEntryLevel = game.last_entry_level;
+
+    if (!lastEntryLevel) {
+      return {
+        closed: false,
+        lastLevel: null,
+        currentLevel: levelIndex + 1,
+        message: "Sin límite de entradas",
+      };
+    }
+
+    const currentLevel = levelIndex + 1;
+    const closed = currentLevel > lastEntryLevel;
+
+    return {
+      closed,
+      lastLevel: lastEntryLevel,
+      currentLevel,
+      message: closed
+        ? `Entradas cerradas desde nivel ${lastEntryLevel + 1}`
+        : `Entradas hasta nivel ${lastEntryLevel}`,
+    };
+  }, [game.last_entry_level, levelIndex]);
 
   // Memoizar el cálculo del estado del bono de puntualidad
   const punctualityBonusStatus = useMemo(() => {
@@ -664,12 +754,8 @@ export default function PlayGame(params: { template: string }) {
                 : "text-green-600"
             }`}
           >
-            {game.punctuality_bonus?.toLocaleString("es-ES", {
-              currency: "EUR",
-              style: "currency",
-              minimumFractionDigits: 0,
-            })}{" "}
-            extra por llegar a tiempo
+            {game.punctuality_bonus?.toLocaleString("es-ES")} puntos extra por
+            llegar a tiempo
           </p>
           <p
             className={`mt-1 text-xs ${
@@ -815,7 +901,7 @@ export default function PlayGame(params: { template: string }) {
         }
       },
       plus: () => {
-        if (game.id) {
+        if (game.id && !entriesStatus.closed) {
           addPlayer();
         }
       },
@@ -825,7 +911,7 @@ export default function PlayGame(params: { template: string }) {
         }
       },
       "ctrl+plus": () => {
-        if (game.id) {
+        if (game.id && !entriesStatus.closed) {
           addEntry();
         }
       },
@@ -1031,10 +1117,20 @@ export default function PlayGame(params: { template: string }) {
                             Total Fichas
                           </p>
                           <p className="text-2xl font-bold text-green-900 dark:text-green-100">
-                            {(entries * parseInt(game.points)).toLocaleString(
-                              "es-ES"
-                            )}
+                            {totalChips.toLocaleString("es-ES")}
                           </p>
+                          {punctualityBonusPlayers > 0 && (
+                            <p className="text-xs text-green-600 dark:text-green-400">
+                              +
+                              {(
+                                punctualityBonusPlayers *
+                                parseInt(
+                                  game.punctuality_bonus?.toString() || "0"
+                                )
+                              ).toLocaleString("es-ES")}{" "}
+                              puntos de bono
+                            </p>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -1052,9 +1148,9 @@ export default function PlayGame(params: { template: string }) {
                           </p>
                           <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                             {players > 0
-                              ? Math.round(
-                                  (entries * parseInt(game.points)) / players
-                                ).toLocaleString("es-ES")
+                              ? Math.round(totalChips / players).toLocaleString(
+                                  "es-ES"
+                                )
                               : 0}
                           </p>
                         </div>
@@ -1090,6 +1186,53 @@ export default function PlayGame(params: { template: string }) {
 
                   {/* Bono de puntualidad */}
                   {showPunctualityBonus()}
+
+                  {/* Estado de entradas */}
+                  {game.last_entry_level && (
+                    <Card
+                      className={`${
+                        entriesStatus.closed
+                          ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950"
+                          : "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
+                      }`}
+                    >
+                      <CardContent className="p-5">
+                        <div className="text-center">
+                          <div className="mb-2 flex items-center justify-center gap-2">
+                            <span className="text-2xl">
+                              {entriesStatus.closed ? "🔒" : "🚪"}
+                            </span>
+                            <h3
+                              className={`text-lg font-bold ${
+                                entriesStatus.closed
+                                  ? "text-red-700 dark:text-red-300"
+                                  : "text-green-700 dark:text-green-300"
+                              }`}
+                            >
+                              {entriesStatus.closed
+                                ? "Entradas Cerradas"
+                                : "Entradas Abiertas"}
+                            </h3>
+                          </div>
+                          <p
+                            className={`text-sm ${
+                              entriesStatus.closed
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-green-600 dark:text-green-400"
+                            }`}
+                          >
+                            {entriesStatus.message}
+                          </p>
+                          {!entriesStatus.closed && entriesStatus.lastLevel && (
+                            <p className="mt-1 text-xs text-orange-500">
+                              ⚠️ Las entradas se cerrarán en el nivel{" "}
+                              {entriesStatus.lastLevel + 1}
+                            </p>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Cronómetro con controles integrados */}
                   <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950">
@@ -1191,17 +1334,21 @@ export default function PlayGame(params: { template: string }) {
                           </span>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-blue-600">Addons</span>
-                          <span className="font-medium text-blue-600">
-                            +
-                            {addonPot.toLocaleString("es-ES", {
-                              currency: "EUR",
-                              style: "currency",
-                              minimumFractionDigits: 0,
-                            })}
-                          </span>
-                        </div>
+                        {(addonsEnabled.simple || addonsEnabled.double) && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-blue-600">
+                              Addons
+                            </span>
+                            <span className="font-medium text-blue-600">
+                              +
+                              {addonPot.toLocaleString("es-ES", {
+                                currency: "EUR",
+                                style: "currency",
+                                minimumFractionDigits: 0,
+                              })}
+                            </span>
+                          </div>
+                        )}
 
                         {typeof game.extrapot === "number" &&
                           game.extrapot > 0 && (
@@ -1228,11 +1375,11 @@ export default function PlayGame(params: { template: string }) {
                             <div className="flex items-center gap-1">
                               <Target className="size-3 text-orange-600" />
                               <span className="text-sm text-orange-600">
-                                Bounty
+                                {entries} bounty{entries !== 1 ? "s" : ""}
                               </span>
                             </div>
                             <span className="font-medium text-orange-600">
-                              {game.bounty.toLocaleString("es-ES", {
+                              {(entries * game.bounty).toLocaleString("es-ES", {
                                 currency: "EUR",
                                 style: "currency",
                                 minimumFractionDigits: 0,
@@ -1272,7 +1419,7 @@ export default function PlayGame(params: { template: string }) {
                       </CardHeader>
                       <CardContent className="space-y-2">
                         {calculatedPrizes}
-                        {game.bubble && (
+                        {typeof game.bubble === "number" && game.bubble > 0 && (
                           <div className="mt-3 border-t pt-2">
                             <div className="flex items-center justify-between">
                               <span className="text-sm text-orange-600">
@@ -1298,9 +1445,9 @@ export default function PlayGame(params: { template: string }) {
               </div>
             </div>
             {/* Controles de gestión */}
-            <div className="order-4 mt-8 grid w-full grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="order-4 mt-8 flex w-full gap-4">
               {/* Control de Jugadores */}
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900">
+              <Card className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900">
                 <CardContent className="p-5">
                   <div className="text-center">
                     <div className="mb-4 flex items-center justify-center gap-2">
@@ -1326,6 +1473,12 @@ export default function PlayGame(params: { template: string }) {
                         variant="outline"
                         className="border-blue-300 text-blue-600 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900"
                         onClick={() => addPlayer()}
+                        disabled={entriesStatus.closed}
+                        title={
+                          entriesStatus.closed
+                            ? "Entradas cerradas"
+                            : "Añadir jugador"
+                        }
                       >
                         <PlusIcon className="size-4" />
                       </Button>
@@ -1335,7 +1488,7 @@ export default function PlayGame(params: { template: string }) {
               </Card>
 
               {/* Control de Entradas */}
-              <Card className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900">
+              <Card className="flex-1 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900">
                 <CardContent className="p-5">
                   <div className="text-center">
                     <div className="mb-4 flex items-center justify-center gap-2">
@@ -1361,6 +1514,12 @@ export default function PlayGame(params: { template: string }) {
                         variant="outline"
                         className="border-green-300 text-green-600 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900"
                         onClick={() => addEntry()}
+                        disabled={entriesStatus.closed}
+                        title={
+                          entriesStatus.closed
+                            ? "Entradas cerradas"
+                            : "Añadir entrada"
+                        }
                       >
                         <PlusIcon className="size-4" />
                       </Button>
@@ -1370,74 +1529,78 @@ export default function PlayGame(params: { template: string }) {
               </Card>
 
               {/* Control de Addons */}
-              <Card className="bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-950 dark:to-violet-900">
-                <CardContent className="p-5">
-                  <div className="text-center">
-                    <div className="mb-4 flex items-center justify-center gap-2">
-                      <CoinsIcon className="size-5 text-purple-600 dark:text-purple-400" />
-                      <span className="font-medium text-purple-700 dark:text-purple-300">
-                        Addons
-                      </span>
+              {addonsEnabled.simple && (
+                <Card className="flex-1 bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-950 dark:to-violet-900">
+                  <CardContent className="p-5">
+                    <div className="text-center">
+                      <div className="mb-4 flex items-center justify-center gap-2">
+                        <CoinsIcon className="size-5 text-purple-600 dark:text-purple-400" />
+                        <span className="font-medium text-purple-700 dark:text-purple-300">
+                          Addons
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-center space-x-3">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900"
+                          onClick={() => removeAddon()}
+                        >
+                          <MinusIcon className="size-4" />
+                        </Button>
+                        <span className="min-w-[3rem] text-2xl font-bold text-purple-900 dark:text-purple-100">
+                          {addons}
+                        </span>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900"
+                          onClick={() => addAddon()}
+                        >
+                          <PlusIcon className="size-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-center space-x-3">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900"
-                        onClick={() => removeAddon()}
-                      >
-                        <MinusIcon className="size-4" />
-                      </Button>
-                      <span className="min-w-[3rem] text-2xl font-bold text-purple-900 dark:text-purple-100">
-                        {addons}
-                      </span>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900"
-                        onClick={() => addAddon()}
-                      >
-                        <PlusIcon className="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Control de Doble Addons */}
-              <Card className="bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900">
-                <CardContent className="p-5">
-                  <div className="text-center">
-                    <div className="mb-4 flex items-center justify-center gap-2">
-                      <TrophyIcon className="size-5 text-orange-600 dark:text-orange-400" />
-                      <span className="font-medium text-orange-700 dark:text-orange-300">
-                        Doble Addons
-                      </span>
+              {addonsEnabled.double && (
+                <Card className="flex-1 bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900">
+                  <CardContent className="p-5">
+                    <div className="text-center">
+                      <div className="mb-4 flex items-center justify-center gap-2">
+                        <TrophyIcon className="size-5 text-orange-600 dark:text-orange-400" />
+                        <span className="font-medium text-orange-700 dark:text-orange-300">
+                          Doble Addons
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-center space-x-3">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="border-orange-300 text-orange-600 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900"
+                          onClick={() => removeDoubleAddon()}
+                        >
+                          <MinusIcon className="size-4" />
+                        </Button>
+                        <span className="min-w-[3rem] text-2xl font-bold text-orange-900 dark:text-orange-100">
+                          {doubleaddons}
+                        </span>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="border-orange-300 text-orange-600 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900"
+                          onClick={() => addDoubleAddon()}
+                        >
+                          <PlusIcon className="size-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-center space-x-3">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="border-orange-300 text-orange-600 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900"
-                        onClick={() => removeDoubleAddon()}
-                      >
-                        <MinusIcon className="size-4" />
-                      </Button>
-                      <span className="min-w-[3rem] text-2xl font-bold text-orange-900 dark:text-orange-100">
-                        {doubleaddons}
-                      </span>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="border-orange-300 text-orange-600 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900"
-                        onClick={() => addDoubleAddon()}
-                      >
-                        <PlusIcon className="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         )}

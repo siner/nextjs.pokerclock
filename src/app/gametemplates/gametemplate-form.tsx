@@ -454,6 +454,86 @@ export default function GameTemplateForm({
               </div>
             </FormGrid>
           </div>
+
+          {/* Configuración de Entradas */}
+          <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
+            <div className="mb-3 flex items-center gap-2">
+              <div className="rounded-full bg-orange-100 p-2 dark:bg-orange-900">
+                <Users className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <h4 className="font-medium text-orange-900 dark:text-orange-100">
+                  Control de Entradas
+                </h4>
+                <p className="text-sm text-orange-700 dark:text-orange-300">
+                  Define hasta qué nivel se permiten nuevas entradas al torneo
+                </p>
+              </div>
+            </div>
+
+            <FormGrid columns={2}>
+              <EnhancedInput
+                label="Último Nivel de Entradas"
+                type="number"
+                placeholder="3"
+                min="1"
+                max={levels.length}
+                value={String(newGameTemplate.last_entry_level || "")}
+                onValueChange={(value) =>
+                  setnewGameTemplate({
+                    ...newGameTemplate,
+                    last_entry_level: Number(value) || undefined,
+                  })
+                }
+                error={errorMap["last_entry_level"]}
+                warning={warningMap["last_entry_level"]}
+                tooltip="Último nivel en el que se permiten nuevas entradas (después de este nivel solo se eliminan jugadores)"
+              />
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">
+                  Estado de Entradas
+                </label>
+                <div className="rounded-md bg-muted/50 p-3 text-sm">
+                  {newGameTemplate.last_entry_level ? (
+                    <>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Entradas hasta:
+                        </span>
+                        <span className="font-medium text-orange-600 dark:text-orange-400">
+                          Nivel {newGameTemplate.last_entry_level}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Después del nivel:
+                        </span>
+                        <span className="font-medium text-red-600 dark:text-red-400">
+                          Solo eliminaciones
+                        </span>
+                      </div>
+                      {levels[newGameTemplate.last_entry_level - 1] && (
+                        <div className="mt-2 flex justify-between border-t pt-2">
+                          <span className="font-medium">
+                            Ciegas del último nivel:
+                          </span>
+                          <span className="font-bold">
+                            {levels[newGameTemplate.last_entry_level - 1].sb}/
+                            {levels[newGameTemplate.last_entry_level - 1].bb}
+                          </span>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center text-muted-foreground">
+                      Sin límite de entradas configurado
+                    </div>
+                  )}
+                </div>
+              </div>
+            </FormGrid>
+          </div>
         </FormSection>
 
         {/* Configuración de Add-ons */}

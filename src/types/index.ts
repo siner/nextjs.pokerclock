@@ -36,6 +36,9 @@ export type Game = {
   double_addon_price: number;
   double_addon_points: number;
   punctuality_bonus?: number; // Bono de puntualidad
+  punctuality_bonus_players?: number; // Número de jugadores que recibieron el bono
+  last_entry_level?: number; // Último nivel en el que se permiten entradas (1-based)
+  manual_prizes?: Prize[]; // Premios editados manualmente por el organizador
   prize_structures: PrizeStructure[];
   levels: Level[];
   playing: boolean;
@@ -70,6 +73,7 @@ export type GameTemplate = {
   double_addon_price: number;
   double_addon_points: number;
   punctuality_bonus?: number;
+  last_entry_level?: number; // Último nivel en el que se permiten entradas (1-based)
   levels: Level[];
   prize_structures: PrizeStructure[];
 };
