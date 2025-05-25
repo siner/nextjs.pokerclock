@@ -44,7 +44,7 @@ export default function EditTemplateClient({
           </Button>
         </div>
         <h1 className="text-4xl font-bold">Editar Plantilla</h1>
-        <div className="flex items-center justify-center p-8">
+        <div className="flex items-center justify-center p-4">
           <p>Cargando plantilla...</p>
         </div>
       </main>
@@ -68,8 +68,8 @@ export default function EditTemplateClient({
   }
 
   return (
-    <main className="flex flex-col items-start gap-8 sm:items-start">
-      <div className="mb-10 flex flex-col items-start gap-4">
+    <main className="flex flex-col items-start gap-4 sm:items-start">
+      <div className="mb-4 flex flex-col items-start gap-4">
         <Button size="lg" variant="outline">
           <Link href="/gametemplates">Volver</Link>
         </Button>

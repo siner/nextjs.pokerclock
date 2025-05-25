@@ -35,7 +35,7 @@ import Link from "next/link";
 import { DeleteConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { ButtonLoading, SpinnerWithText } from "@/components/ui/loading";
+import { SpinnerWithText } from "@/components/ui/loading";
 import {
   DataRecovery,
   SafeStorage,
@@ -230,7 +230,7 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
       {/* Estadísticas y acciones */}
       <div className="mb-6 flex flex-col gap-4">
         {gametemplates.length > 0 && (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-lg border bg-gradient-to-r from-blue-50 to-blue-100 p-4 dark:from-blue-950 dark:to-blue-900">
               <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
                 <Calendar className="size-5" />
@@ -278,7 +278,7 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
           </div>
         )}
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-muted-foreground">
             <span className="text-sm">
               {gametemplates.length === 0
@@ -287,23 +287,26 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <PredefinedTemplatesDialog onTemplateSelect={handleTemplateSelect}>
               <Button variant="outline" size="sm">
                 <Trophy className="mr-2 size-4" />
-                Plantillas
+                <span className="hidden sm:inline">Plantillas</span>
+                <span className="sm:hidden">Templates</span>
               </Button>
             </PredefinedTemplatesDialog>
             <ExportDialog templates={gametemplates}>
               <Button variant="outline" size="sm">
                 <DownloadIcon className="mr-2 size-4" />
-                Exportar
+                <span className="hidden sm:inline">Exportar</span>
+                <span className="sm:hidden">Export</span>
               </Button>
             </ExportDialog>
             <ImportDialog onImportComplete={handleImportComplete}>
               <Button variant="outline" size="sm">
                 <UploadIcon className="mr-2 size-4" />
-                Importar
+                <span className="hidden sm:inline">Importar</span>
+                <span className="sm:hidden">Import</span>
               </Button>
             </ImportDialog>
           </div>
@@ -326,7 +329,7 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                     Torneo
                   </div>
                 </TableHead>
-                <TableHead className="text-center">
+                <TableHead className="w-[100px] text-center">
                   <div className="flex items-center justify-center gap-2">
                     <WalletIcon className="size-4" />
                     Buy-in
@@ -410,7 +413,7 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                       </TableCell>
 
                       <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-2">
+                        <div className="flex flex-col items-center justify-center gap-2 sm:flex-row">
                           <span className="font-medium">
                             {gametemplate.entry.toLocaleString("es-ES")}€
                           </span>
@@ -501,6 +504,7 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                             size="sm"
                             variant="ghost"
                             className="h-8 w-8 p-0"
+                            title="Jugar torneo"
                           >
                             <Link href={`/play?template=${gametemplate.id}`}>
                               <PlayIcon className="size-4 text-green-600" />
@@ -510,6 +514,7 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                             size="sm"
                             variant="ghost"
                             className="h-8 w-8 p-0"
+                            title="Editar plantilla"
                           >
                             <Link href={`/gametemplates/${gametemplate.id}`}>
                               <PencilIcon className="size-4 text-blue-600" />
@@ -525,6 +530,7 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                               variant="ghost"
                               className="h-8 w-8 p-0"
                               disabled={isDeleting}
+                              title="Eliminar plantilla"
                             >
                               <TrashIcon className="size-4 text-red-600" />
                             </Button>
@@ -586,15 +592,19 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between border-t pt-6">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-4 border-t pt-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
             <div className="text-sm text-muted-foreground">
-              Tip: Haz clic en el nombre de una plantilla para editarla
+              <span className="hidden sm:inline">
+                Tip: Haz clic en el nombre de una plantilla para editarla
+              </span>
+              <span className="sm:hidden">Toca el nombre para editar</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <QuickTemplateButton onTemplateSelect={handleTemplateSelect}>
                 <Trophy className="mr-2 size-3" />
-                Plantilla popular
+                <span className="hidden sm:inline">Plantilla popular</span>
+                <span className="sm:hidden">Popular</span>
               </QuickTemplateButton>
               <QuickExportButton
                 templates={gametemplates}
@@ -602,21 +612,24 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                 format="json"
               >
                 <DownloadIcon className="mr-2 size-3" />
-                Backup rápido
+                <span className="hidden sm:inline">Backup rápido</span>
+                <span className="sm:hidden">Backup</span>
               </QuickExportButton>
               <QuickImportButton onImportComplete={handleImportComplete}>
                 <UploadIcon className="mr-2 size-3" />
-                Importar rápido
+                <span className="hidden sm:inline">Importar rápido</span>
+                <span className="sm:hidden">Import</span>
               </QuickImportButton>
             </div>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2 self-start lg:self-auto">
             <Link
               href="/gametemplates/create"
               className="flex items-center gap-2"
             >
               <PlusIcon className="size-4" />
-              Nueva plantilla
+              <span className="hidden sm:inline">Nueva plantilla</span>
+              <span className="sm:hidden">Nueva</span>
             </Link>
           </Button>
         </div>

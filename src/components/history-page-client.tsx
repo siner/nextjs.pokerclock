@@ -13,14 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -40,7 +32,6 @@ import {
 import { LoadingOverlay } from "@/components/ui/loading";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import {
-  CalendarIcon,
   TrophyIcon,
   UsersIcon,
   DollarSignIcon,
@@ -258,7 +249,7 @@ export default function HistoryPageClient() {
   return (
     <div className="container mx-auto space-y-6 p-6">
       {/* Header con navegación */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         {/* Botones de navegación */}
         <div className="flex items-center gap-2">
           <Button
@@ -269,7 +260,7 @@ export default function HistoryPageClient() {
             title="Ir al inicio"
           >
             <HomeIcon className="size-4" />
-            <span className="hidden md:inline">Inicio</span>
+            <span className="hidden sm:inline">Inicio</span>
           </Button>
 
           <Button
@@ -280,28 +271,32 @@ export default function HistoryPageClient() {
             title="Ir a plantillas"
           >
             <ArrowLeftIcon className="size-4" />
-            <span className="hidden md:inline">Plantillas</span>
+            <span className="hidden sm:inline">Plantillas</span>
           </Button>
         </div>
 
         {/* Título */}
-        <div className="flex-1 text-center md:text-left">
-          <h1 className="text-3xl font-bold">Historial de Torneos</h1>
-          <p className="text-muted-foreground">
+        <div className="flex-1 text-center lg:text-left">
+          <h1 className="text-2xl font-bold sm:text-3xl">
+            Historial de Torneos
+          </h1>
+          <p className="text-sm text-muted-foreground sm:text-base">
             Consulta y gestiona el historial completo de torneos
           </p>
         </div>
 
         {/* Controles de gestión */}
-        <div className="flex gap-2">
-          <Button onClick={handleExport} variant="outline">
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={handleExport} variant="outline" size="sm">
             <DownloadIcon className="mr-2 h-4 w-4" />
-            Exportar
+            <span className="hidden sm:inline">Exportar</span>
+            <span className="sm:hidden">Export</span>
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="outline" size="sm" asChild>
             <label htmlFor="import-file" className="cursor-pointer">
               <UploadIcon className="mr-2 h-4 w-4" />
-              Importar
+              <span className="hidden sm:inline">Importar</span>
+              <span className="sm:hidden">Import</span>
               <input
                 id="import-file"
                 type="file"
@@ -316,9 +311,10 @@ export default function HistoryPageClient() {
             description="¿Estás seguro de que quieres eliminar todo el historial? Esta acción no se puede deshacer."
             onConfirm={handleClearHistory}
           >
-            <Button variant="destructive">
+            <Button variant="destructive" size="sm">
               <TrashIcon className="mr-2 h-4 w-4" />
-              Limpiar
+              <span className="hidden sm:inline">Limpiar</span>
+              <span className="sm:hidden">Clear</span>
             </Button>
           </ConfirmationDialog>
         </div>
@@ -326,7 +322,7 @@ export default function HistoryPageClient() {
 
       {/* Estadísticas */}
       {stats && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">

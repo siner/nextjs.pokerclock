@@ -214,7 +214,7 @@ export function PrizeStructureManager({
                 )}
               >
                 <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       <Users className="h-5 w-5 text-primary" />
                       <div className="flex items-center gap-2">
@@ -244,7 +244,7 @@ export function PrizeStructureManager({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <div
                         className={cn(
                           "rounded px-2 py-1 text-sm font-medium",
@@ -294,8 +294,8 @@ export function PrizeStructureManager({
                 </CardHeader>
 
                 <CardContent className="space-y-3">
-                  {/* Encabezados */}
-                  <div className="grid grid-cols-3 gap-3 text-sm font-medium text-muted-foreground">
+                  {/* Encabezados - Ocultos en móvil */}
+                  <div className="hidden grid-cols-3 gap-3 text-sm font-medium text-muted-foreground sm:grid">
                     <span>Posición</span>
                     <span>Porcentaje</span>
                     <span>Acciones</span>
@@ -305,58 +305,75 @@ export function PrizeStructureManager({
                   {structure.prizes.map((prize, prizeIndex) => (
                     <div
                       key={prizeIndex}
-                      className="grid grid-cols-3 items-center gap-3 rounded-lg bg-muted/30 p-3"
+                      className="flex flex-col gap-3 rounded-lg bg-muted/30 p-3 sm:grid sm:grid-cols-3 sm:items-center"
                     >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold",
-                            prizeIndex === 0
-                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                              : prizeIndex === 1
-                                ? "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                                : prizeIndex === 2
-                                  ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-                                  : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                          )}
-                        >
-                          {getPositionLabel(prizeIndex)}
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-muted-foreground sm:hidden">
+                          Posición
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={cn(
+                              "flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold",
+                              prizeIndex === 0
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                                : prizeIndex === 1
+                                  ? "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                                  : prizeIndex === 2
+                                    ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                                    : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                            )}
+                          >
+                            {getPositionLabel(prizeIndex)}
+                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            lugar
+                          </span>
                         </div>
-                        <span className="text-sm text-muted-foreground">
-                          lugar
-                        </span>
                       </div>
 
-                      <PercentageInput
-                        placeholder="50"
-                        value={prize.percentaje}
-                        onValueChange={(value) =>
-                          updatePrize(structureIndex, prizeIndex, value)
-                        }
-                        error={
-                          errors[
-                            `prize_structures.${structureIndex}.prizes.${prizeIndex}`
-                          ]
-                        }
-                        warning={
-                          warnings[
-                            `prize_structures.${structureIndex}.prizes.${prizeIndex}`
-                          ]
-                        }
-                        tooltip={`Porcentaje del bote para el ${getPositionLabel(prizeIndex)} lugar`}
-                      />
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-muted-foreground sm:hidden">
+                          Porcentaje del bote
+                        </label>
+                        <PercentageInput
+                          placeholder="50"
+                          value={prize.percentaje}
+                          onValueChange={(value) =>
+                            updatePrize(structureIndex, prizeIndex, value)
+                          }
+                          error={
+                            errors[
+                              `prize_structures.${structureIndex}.prizes.${prizeIndex}`
+                            ]
+                          }
+                          warning={
+                            warnings[
+                              `prize_structures.${structureIndex}.prizes.${prizeIndex}`
+                            ]
+                          }
+                          tooltip={`Porcentaje del bote para el ${getPositionLabel(prizeIndex)} lugar`}
+                        />
+                      </div>
 
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removePrize(structureIndex, prizeIndex)}
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                        title="Eliminar premio"
-                        disabled={structure.prizes.length === 1}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-muted-foreground sm:hidden">
+                          Acciones
+                        </label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            removePrize(structureIndex, prizeIndex)
+                          }
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                          title="Eliminar premio"
+                          disabled={structure.prizes.length === 1}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
 

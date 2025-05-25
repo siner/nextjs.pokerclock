@@ -806,21 +806,26 @@ export default function PlayGame(params: { template: string }) {
     return (
       <div className="text-center">
         <div className="mb-3 flex items-center justify-center gap-2">
-          <TrophyIcon className="size-6 text-slate-600 dark:text-slate-400" />
-          <span className="text-lg font-medium text-slate-700 dark:text-slate-300">
+          <TrophyIcon className="size-5 text-slate-600 dark:text-slate-400 md:size-6" />
+          <span className="text-base font-medium text-slate-700 dark:text-slate-300 md:text-lg">
             Nivel Actual
           </span>
         </div>
         <div className="space-y-2">
-          <div className="text-4xl font-bold text-slate-900 dark:text-slate-100 md:text-6xl">
+          <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl md:text-4xl lg:text-6xl">
             {currentLevel.sb} / {currentLevel.bb}
             {currentLevel.ante > 0 && (
               <span className="text-orange-600"> / {currentLevel.ante}</span>
             )}
           </div>
-          <Badge variant="secondary" className="px-4 py-1 text-lg">
-            <ClockIcon className="mr-2 size-4" />
-            {currentLevel.time} minutos
+          <Badge
+            variant="secondary"
+            className="px-3 py-1 text-sm md:px-4 md:text-lg"
+          >
+            <ClockIcon className="mr-1 size-3 md:mr-2 md:size-4" />
+            {currentLevel.time}{" "}
+            <span className="hidden sm:inline">minutos</span>
+            <span className="sm:hidden">min</span>
           </Badge>
         </div>
       </div>
@@ -1028,10 +1033,10 @@ export default function PlayGame(params: { template: string }) {
         ) : (
           <div className="flex flex-col items-center space-y-6">
             {/* Header con controles mejorados */}
-            <div className="order-3 mt-5 flex w-full items-center justify-between gap-4 md:order-1 md:mt-0">
+            <div className="order-3 mt-5 flex w-full flex-col gap-3 md:order-1 md:mt-0 md:flex-row md:items-center md:justify-between">
               {/* Controles de torneo */}
-              <div className="flex w-full items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
+              <div className="flex w-full items-center justify-between gap-2 md:w-auto">
+                <div className="flex items-center gap-1 sm:gap-2">
                   {timer > 0 && players > 0 && (
                     <ConfirmationDialog
                       title="Finalizar torneo"
@@ -1047,8 +1052,8 @@ export default function PlayGame(params: { template: string }) {
                         className="border-green-600 bg-green-600 text-white hover:border-green-700 hover:bg-green-700"
                         title="Finalizar torneo"
                       >
-                        <SquareIcon className="size-4 md:mr-2" />
-                        <span className="hidden md:inline">Finalizar</span>
+                        <SquareIcon className="size-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Finalizar</span>
                       </Button>
                     </ConfirmationDialog>
                   )}
@@ -1060,8 +1065,8 @@ export default function PlayGame(params: { template: string }) {
                       className="bg-red-600 text-white hover:bg-red-700"
                       title="Reiniciar torneo"
                     >
-                      <RotateCcw className="size-4 md:mr-2" />
-                      <span className="hidden md:inline">Reset</span>
+                      <RotateCcw className="size-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Reset</span>
                     </Button>
                   </ResetConfirmationDialog>
                 </div>
@@ -1074,31 +1079,31 @@ export default function PlayGame(params: { template: string }) {
                   className="border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
                   title="Ver atajos de teclado (Presiona ?)"
                 >
-                  <KeyboardIcon className="size-4 md:mr-2" />
-                  <span className="hidden md:inline">Atajos</span>
+                  <KeyboardIcon className="size-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Atajos</span>
                 </Button>
               </div>
             </div>
 
             {/* Título del torneo */}
-            <h1 className="order-1 text-center text-4xl font-bold md:order-2">
+            <h1 className="order-1 text-center text-2xl font-bold sm:text-3xl md:order-2 md:text-4xl">
               {game.name}
             </h1>
-            <div className="order-2 flex w-full flex-col gap-6 md:order-3 md:flex-row md:items-start md:justify-between">
+            <div className="order-2 flex w-full flex-col gap-4 md:order-3 md:flex-row md:items-start md:justify-between md:gap-6">
               {/* Estadísticas laterales */}
               <div className="order-2 md:order-1 md:w-1/5">
-                <div className="space-y-6">
+                <div className="grid grid-cols-3 gap-3 md:block md:space-y-6">
                   <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-                    <CardContent className="p-5">
-                      <div className="flex items-center gap-3">
+                    <CardContent className="p-3 md:p-5">
+                      <div className="flex flex-col items-center gap-2 md:flex-row md:gap-3">
                         <div className="rounded-full bg-blue-100 p-2 dark:bg-blue-900">
-                          <UsersIcon className="size-5 text-blue-600 dark:text-blue-400" />
+                          <UsersIcon className="size-4 text-blue-600 dark:text-blue-400 md:size-5" />
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                        <div className="flex-1 text-center md:text-left">
+                          <p className="text-xs font-medium text-blue-700 dark:text-blue-300 md:text-sm">
                             Jugadores
                           </p>
-                          <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                          <p className="text-lg font-bold text-blue-900 dark:text-blue-100 md:text-2xl">
                             {players} / {totalPlayers}
                           </p>
                         </div>
@@ -1107,16 +1112,16 @@ export default function PlayGame(params: { template: string }) {
                   </Card>
 
                   <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-                    <CardContent className="p-5">
-                      <div className="flex items-center gap-3">
+                    <CardContent className="p-3 md:p-5">
+                      <div className="flex flex-col items-center gap-2 md:flex-row md:gap-3">
                         <div className="rounded-full bg-green-100 p-2 dark:bg-green-900">
-                          <CoinsIcon className="size-5 text-green-600 dark:text-green-400" />
+                          <CoinsIcon className="size-4 text-green-600 dark:text-green-400 md:size-5" />
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                        <div className="flex-1 text-center md:text-left">
+                          <p className="text-xs font-medium text-green-700 dark:text-green-300 md:text-sm">
                             Total Fichas
                           </p>
-                          <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                          <p className="text-lg font-bold text-green-900 dark:text-green-100 md:text-2xl">
                             {totalChips.toLocaleString("es-ES")}
                           </p>
                           {punctualityBonusPlayers > 0 && (
@@ -1128,7 +1133,10 @@ export default function PlayGame(params: { template: string }) {
                                   game.punctuality_bonus?.toString() || "0"
                                 )
                               ).toLocaleString("es-ES")}{" "}
-                              puntos de bono
+                              <span className="hidden sm:inline">
+                                puntos de bono
+                              </span>
+                              <span className="sm:hidden">bono</span>
                             </p>
                           )}
                         </div>
@@ -1137,16 +1145,19 @@ export default function PlayGame(params: { template: string }) {
                   </Card>
 
                   <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
-                    <CardContent className="p-5">
-                      <div className="flex items-center gap-3">
+                    <CardContent className="p-3 md:p-5">
+                      <div className="flex flex-col items-center gap-2 md:flex-row md:gap-3">
                         <div className="rounded-full bg-purple-100 p-2 dark:bg-purple-900">
-                          <TrendingUpIcon className="size-5 text-purple-600 dark:text-purple-400" />
+                          <TrendingUpIcon className="size-4 text-purple-600 dark:text-purple-400 md:size-5" />
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
-                            Stack Promedio
+                        <div className="flex-1 text-center md:text-left">
+                          <p className="text-xs font-medium text-purple-700 dark:text-purple-300 md:text-sm">
+                            <span className="hidden sm:inline">
+                              Stack Promedio
+                            </span>
+                            <span className="sm:hidden">Stack Prom.</span>
                           </p>
-                          <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                          <p className="text-lg font-bold text-purple-900 dark:text-purple-100 md:text-2xl">
                             {players > 0
                               ? Math.round(totalChips / players).toLocaleString(
                                   "es-ES"
@@ -1162,14 +1173,14 @@ export default function PlayGame(params: { template: string }) {
 
               {/* Sección central */}
               <div className="order-1 md:order-2 md:w-3/5">
-                <div className="space-y-6">
+                <div className="space-y-4 md:space-y-6">
                   {/* Estado del juego */}
                   {!playing && timer > 0 && (
                     <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-                      <CardContent className="p-5">
+                      <CardContent className="p-3 md:p-5">
                         <div className="flex items-center justify-center gap-2">
-                          <PauseIcon className="size-5 text-red-600" />
-                          <p className="text-lg font-bold text-red-700 dark:text-red-300">
+                          <PauseIcon className="size-4 text-red-600 md:size-5" />
+                          <p className="text-base font-bold text-red-700 dark:text-red-300 md:text-lg">
                             TORNEO EN PAUSA
                           </p>
                         </div>
@@ -1179,7 +1190,7 @@ export default function PlayGame(params: { template: string }) {
 
                   {/* Nivel actual */}
                   <Card className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-                    <CardContent className="p-5">
+                    <CardContent className="p-4 md:p-5">
                       {showCurrentLevel()}
                     </CardContent>
                   </Card>
@@ -1236,11 +1247,11 @@ export default function PlayGame(params: { template: string }) {
 
                   {/* Cronómetro con controles integrados */}
                   <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950 dark:to-purple-950">
-                    <CardContent className="p-5">
+                    <CardContent className="p-4 md:p-5">
                       <div className="text-center">
                         <div className="mb-4 flex items-center justify-center gap-2">
-                          <ClockIcon className="size-6 text-indigo-600 dark:text-indigo-400" />
-                          <span className="text-lg font-medium text-indigo-700 dark:text-indigo-300">
+                          <ClockIcon className="size-5 text-indigo-600 dark:text-indigo-400 md:size-6" />
+                          <span className="text-base font-medium text-indigo-700 dark:text-indigo-300 md:text-lg">
                             {timer === 0 ? "Cronómetro" : "Tiempo Transcurrido"}
                           </span>
                         </div>
@@ -1255,36 +1266,45 @@ export default function PlayGame(params: { template: string }) {
                                 : "Click para reanudar"
                             }
                           >
-                            <div className="text-6xl font-bold text-indigo-900 dark:text-indigo-100 md:text-8xl">
+                            <div className="text-4xl font-bold text-indigo-900 dark:text-indigo-100 sm:text-5xl md:text-6xl lg:text-8xl">
                               {showClock()}
                             </div>
-                            <div className="mt-2 flex items-center justify-center gap-2 text-sm text-indigo-600 dark:text-indigo-400">
+                            <div className="mt-2 flex items-center justify-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 md:text-sm">
                               {playing ? (
                                 <>
-                                  <PauseIcon className="size-4" />
-                                  <span>Click para pausar</span>
+                                  <PauseIcon className="size-3 md:size-4" />
+                                  <span className="hidden sm:inline">
+                                    Click para pausar
+                                  </span>
+                                  <span className="sm:hidden">Pausar</span>
                                 </>
                               ) : (
                                 <>
-                                  <PlayIcon className="size-4" />
-                                  <span>Click para reanudar</span>
+                                  <PlayIcon className="size-3 md:size-4" />
+                                  <span className="hidden sm:inline">
+                                    Click para reanudar
+                                  </span>
+                                  <span className="sm:hidden">Reanudar</span>
                                 </>
                               )}
                             </div>
                           </div>
                         ) : (
                           <div className="space-y-4">
-                            <div className="text-6xl font-bold text-indigo-900 dark:text-indigo-100 md:text-8xl">
+                            <div className="text-4xl font-bold text-indigo-900 dark:text-indigo-100 sm:text-5xl md:text-6xl lg:text-8xl">
                               00:00
                             </div>
                             <Button
-                              className="w-40 px-8 py-3"
+                              className="w-32 px-6 py-2 sm:w-40 sm:px-8 sm:py-3"
                               size="lg"
                               onClick={togglePlaying}
                               variant="default"
                             >
-                              <PlayIcon className="mr-2 size-5" />
-                              Iniciar Torneo
+                              <PlayIcon className="mr-2 size-4 sm:size-5" />
+                              <span className="hidden sm:inline">
+                                Iniciar Torneo
+                              </span>
+                              <span className="sm:hidden">Iniciar</span>
                             </Button>
                           </div>
                         )}
@@ -1445,33 +1465,33 @@ export default function PlayGame(params: { template: string }) {
               </div>
             </div>
             {/* Controles de gestión */}
-            <div className="order-4 mt-8 flex w-full gap-4">
+            <div className="order-4 mt-6 flex w-full flex-col gap-3 sm:flex-row sm:gap-4 md:mt-8">
               {/* Control de Jugadores */}
               <Card className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900">
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-4 md:p-5">
                   <div className="text-center">
-                    <div className="mb-4 flex items-center justify-center gap-2">
-                      <UsersIcon className="size-5 text-blue-600 dark:text-blue-400" />
-                      <span className="font-medium text-blue-700 dark:text-blue-300">
+                    <div className="mb-3 flex items-center justify-center gap-2 md:mb-4">
+                      <UsersIcon className="size-4 text-blue-600 dark:text-blue-400 md:size-5" />
+                      <span className="text-sm font-medium text-blue-700 dark:text-blue-300 md:text-base">
                         Jugadores
                       </span>
                     </div>
-                    <div className="flex items-center justify-center space-x-3">
+                    <div className="flex items-center justify-center space-x-2 sm:space-x-3">
                       <Button
                         size="icon"
                         variant="outline"
-                        className="border-blue-300 text-blue-600 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900"
+                        className="size-8 border-blue-300 text-blue-600 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900 sm:size-10"
                         onClick={() => removePlayer()}
                       >
-                        <MinusIcon className="size-4" />
+                        <MinusIcon className="size-3 sm:size-4" />
                       </Button>
-                      <span className="min-w-[3rem] text-2xl font-bold text-blue-900 dark:text-blue-100">
+                      <span className="min-w-[2.5rem] text-xl font-bold text-blue-900 dark:text-blue-100 sm:min-w-[3rem] sm:text-2xl">
                         {players}
                       </span>
                       <Button
                         size="icon"
                         variant="outline"
-                        className="border-blue-300 text-blue-600 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900"
+                        className="size-8 border-blue-300 text-blue-600 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-900 sm:size-10"
                         onClick={() => addPlayer()}
                         disabled={entriesStatus.closed}
                         title={
@@ -1480,7 +1500,7 @@ export default function PlayGame(params: { template: string }) {
                             : "Añadir jugador"
                         }
                       >
-                        <PlusIcon className="size-4" />
+                        <PlusIcon className="size-3 sm:size-4" />
                       </Button>
                     </div>
                   </div>
@@ -1489,30 +1509,30 @@ export default function PlayGame(params: { template: string }) {
 
               {/* Control de Entradas */}
               <Card className="flex-1 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-900">
-                <CardContent className="p-5">
+                <CardContent className="p-3 sm:p-4 md:p-5">
                   <div className="text-center">
-                    <div className="mb-4 flex items-center justify-center gap-2">
-                      <DollarSignIcon className="size-5 text-green-600 dark:text-green-400" />
-                      <span className="font-medium text-green-700 dark:text-green-300">
+                    <div className="mb-3 flex items-center justify-center gap-2 md:mb-4">
+                      <DollarSignIcon className="size-4 text-green-600 dark:text-green-400 md:size-5" />
+                      <span className="text-sm font-medium text-green-700 dark:text-green-300 md:text-base">
                         Entradas
                       </span>
                     </div>
-                    <div className="flex items-center justify-center space-x-3">
+                    <div className="flex items-center justify-center space-x-2 sm:space-x-3">
                       <Button
                         size="icon"
                         variant="outline"
-                        className="border-green-300 text-green-600 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900"
+                        className="size-8 border-green-300 text-green-600 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900 sm:size-10"
                         onClick={() => removeEntry()}
                       >
-                        <MinusIcon className="size-4" />
+                        <MinusIcon className="size-3 sm:size-4" />
                       </Button>
-                      <span className="min-w-[3rem] text-2xl font-bold text-green-900 dark:text-green-100">
+                      <span className="min-w-[2.5rem] text-xl font-bold text-green-900 dark:text-green-100 sm:min-w-[3rem] sm:text-2xl">
                         {entries}
                       </span>
                       <Button
                         size="icon"
                         variant="outline"
-                        className="border-green-300 text-green-600 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900"
+                        className="size-8 border-green-300 text-green-600 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-900 sm:size-10"
                         onClick={() => addEntry()}
                         disabled={entriesStatus.closed}
                         title={
@@ -1521,7 +1541,7 @@ export default function PlayGame(params: { template: string }) {
                             : "Añadir entrada"
                         }
                       >
-                        <PlusIcon className="size-4" />
+                        <PlusIcon className="size-3 sm:size-4" />
                       </Button>
                     </div>
                   </div>
@@ -1531,33 +1551,33 @@ export default function PlayGame(params: { template: string }) {
               {/* Control de Addons */}
               {addonsEnabled.simple && (
                 <Card className="flex-1 bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-950 dark:to-violet-900">
-                  <CardContent className="p-5">
+                  <CardContent className="p-3 sm:p-4 md:p-5">
                     <div className="text-center">
-                      <div className="mb-4 flex items-center justify-center gap-2">
-                        <CoinsIcon className="size-5 text-purple-600 dark:text-purple-400" />
-                        <span className="font-medium text-purple-700 dark:text-purple-300">
+                      <div className="mb-3 flex items-center justify-center gap-2 md:mb-4">
+                        <CoinsIcon className="size-4 text-purple-600 dark:text-purple-400 md:size-5" />
+                        <span className="text-sm font-medium text-purple-700 dark:text-purple-300 md:text-base">
                           Addons
                         </span>
                       </div>
-                      <div className="flex items-center justify-center space-x-3">
+                      <div className="flex items-center justify-center space-x-2 sm:space-x-3">
                         <Button
                           size="icon"
                           variant="outline"
-                          className="border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900"
+                          className="size-8 border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900 sm:size-10"
                           onClick={() => removeAddon()}
                         >
-                          <MinusIcon className="size-4" />
+                          <MinusIcon className="size-3 sm:size-4" />
                         </Button>
-                        <span className="min-w-[3rem] text-2xl font-bold text-purple-900 dark:text-purple-100">
+                        <span className="min-w-[2.5rem] text-xl font-bold text-purple-900 dark:text-purple-100 sm:min-w-[3rem] sm:text-2xl">
                           {addons}
                         </span>
                         <Button
                           size="icon"
                           variant="outline"
-                          className="border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900"
+                          className="size-8 border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900 sm:size-10"
                           onClick={() => addAddon()}
                         >
-                          <PlusIcon className="size-4" />
+                          <PlusIcon className="size-3 sm:size-4" />
                         </Button>
                       </div>
                     </div>
@@ -1568,33 +1588,33 @@ export default function PlayGame(params: { template: string }) {
               {/* Control de Doble Addons */}
               {addonsEnabled.double && (
                 <Card className="flex-1 bg-gradient-to-br from-orange-50 to-red-100 dark:from-orange-950 dark:to-red-900">
-                  <CardContent className="p-5">
+                  <CardContent className="p-3 sm:p-4 md:p-5">
                     <div className="text-center">
-                      <div className="mb-4 flex items-center justify-center gap-2">
-                        <TrophyIcon className="size-5 text-orange-600 dark:text-orange-400" />
-                        <span className="font-medium text-orange-700 dark:text-orange-300">
+                      <div className="mb-3 flex items-center justify-center gap-2 md:mb-4">
+                        <TrophyIcon className="size-4 text-orange-600 dark:text-orange-400 md:size-5" />
+                        <span className="text-sm font-medium text-orange-700 dark:text-orange-300 md:text-base">
                           Doble Addons
                         </span>
                       </div>
-                      <div className="flex items-center justify-center space-x-3">
+                      <div className="flex items-center justify-center space-x-2 sm:space-x-3">
                         <Button
                           size="icon"
                           variant="outline"
-                          className="border-orange-300 text-orange-600 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900"
+                          className="size-8 border-orange-300 text-orange-600 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900 sm:size-10"
                           onClick={() => removeDoubleAddon()}
                         >
-                          <MinusIcon className="size-4" />
+                          <MinusIcon className="size-3 sm:size-4" />
                         </Button>
-                        <span className="min-w-[3rem] text-2xl font-bold text-orange-900 dark:text-orange-100">
+                        <span className="min-w-[2.5rem] text-xl font-bold text-orange-900 dark:text-orange-100 sm:min-w-[3rem] sm:text-2xl">
                           {doubleaddons}
                         </span>
                         <Button
                           size="icon"
                           variant="outline"
-                          className="border-orange-300 text-orange-600 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900"
+                          className="size-8 border-orange-300 text-orange-600 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-400 dark:hover:bg-orange-900 sm:size-10"
                           onClick={() => addDoubleAddon()}
                         >
-                          <PlusIcon className="size-4" />
+                          <PlusIcon className="size-3 sm:size-4" />
                         </Button>
                       </div>
                     </div>

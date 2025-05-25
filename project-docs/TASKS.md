@@ -4,10 +4,10 @@
 
 **Última Actualización**: Diciembre 2024  
 **Total de Tareas**: 51  
-**Completadas**: 47 (92%)  
-**Correcciones Críticas**: 10  
+**Completadas**: 48 (94%)  
+**Correcciones Críticas**: 13  
 **En Progreso**: 0 (0%)  
-**Pendientes**: 4 (8%)
+**Pendientes**: 3 (6%)
 
 ## Tareas por Prioridad
 
@@ -186,6 +186,7 @@ _No hay tareas en progreso actualmente._
   - **Mejoras aplicadas**: Eliminada columna "Tipo", botones visibles en móvil, formato de moneda simplificado, diseño responsive mejorado
 
 - [x] **TASK-017**: Integración visual del bono de puntualidad en el reloj ✅ COMPLETADO
+
   - **Descripción**: Sistema completo de indicadores visuales y notificaciones para el bono de puntualidad
   - **Asignado a**: Desarrollo
   - **Estimación**: 2 días
@@ -195,6 +196,25 @@ _No hay tareas en progreso actualmente._
   - **Archivos**: `src/components/play-game.tsx`, `src/types/index.ts`
   - **Características**: Indicador visual dinámico (verde/naranja/rojo), cálculo automático del tiempo restante, notificación sonora a los 30 segundos, animación parpadeante cuando expira, integración completa en el reloj principal
   - **Corrección**: Solucionado problema donde el indicador no aparecía al inicio del torneo
+
+- [x] **TASK-020**: Mejoras de Responsive Design ✅ COMPLETADO
+  - **Descripción**: Optimización completa del diseño responsive para móviles y tablets
+  - **Asignado a**: Desarrollo
+  - **Estimación**: 1 día
+  - **Estado**: Completado
+  - **Dependencias**: Ninguna
+  - **Prioridad**: Media
+  - **Archivos**: `src/components/ui/level-manager.tsx`, `src/components/ui/prize-structure-manager.tsx`
+  - **Características**: Layout responsive con flex/grid adaptativo, etiquetas móviles para campos, encabezados ocultos en móvil, espaciado consistente, eliminación de scroll horizontal
+  - **Descripción**: Optimización completa del diseño responsive en todas las pantallas de la aplicación
+  - **Asignado a**: Desarrollo
+  - **Estimación**: 1 día
+  - **Estado**: Completado
+  - **Dependencias**: Ninguna
+  - **Prioridad**: Media
+  - **Archivos**: `src/app/page.tsx`, `src/components/gametemplates-page-client.tsx`, `src/components/history-page-client.tsx`, `src/components/tables/gametemplates-table.tsx`, `src/components/ui/dialog.tsx`, `src/components/play-page-client.tsx`, `src/app/layout.tsx`
+  - **Características**: Títulos escalables, grid responsive, navegación adaptativa, tablas con columnas ocultas progresivamente, controles con texto adaptativo, diálogos con padding responsive, layout con espaciado progresivo
+  - **Mejoras**: Mobile-first approach, breakpoints consistentes (sm, md, lg), texto oculto en móviles con iconos visibles, botones adaptativos, gaps y padding escalables
 
 ## Tareas Completadas ✅
 
@@ -376,6 +396,78 @@ _No hay tareas en progreso actualmente._
 - **Fecha**: Diciembre 2024
 - **Descripción**: Implementación completa para que los puntos extra de puntualidad se añadan automáticamente al total de fichas cuando se añaden jugadores durante el primer nivel
 - **Problema**: Los puntos del bono de puntualidad no se reflejaban en el total de fichas ni en el stack promedio, solo se mostraba como información pero no se contabilizaba
+- **Solución**:
+  - Añadido estado `punctualityBonusPlayers` para rastrear jugadores que recibieron el bono
+  - Modificada función `addPlayer()` para detectar automáticamente si aplica el bono
+  - Creado cálculo memoizado `totalChips` que incluye fichas base + fichas de bono
+  - Actualizado stack promedio para incluir las fichas del bono
+  - Añadido desglose visual mostrando "+X puntos de bono"
+  - Integrado en sistema de guardado/carga y validación de datos
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Lógica de bono automático y visualización
+  - `src/types/index.ts` - Añadido campo `punctuality_bonus_players`
+  - `src/lib/error-handling.ts` - Validación del nuevo campo
+- **Características Nuevas**:
+  - Detección automática del bono al añadir jugadores en primer nivel
+  - Notificación toast confirmando aplicación del bono
+  - Cálculo correcto de fichas totales incluyendo bonos
+  - Stack promedio refleja la distribución real de fichas
+  - Desglose visual del bono en la interfaz
+  - Persistencia completa del estado entre sesiones
+- **Impacto**: Los torneos con bono de puntualidad ahora reflejan correctamente las fichas reales en juego
+
+### ✅ CORRECCIÓN-013: Optimización Responsive de Componentes de Formulario
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección completa de problemas de responsive design en componentes LevelManager y PrizeStructureManager que causaban scroll horizontal en móviles
+- **Problema**: Los componentes de estructura de niveles y premios no se adaptaban correctamente a pantallas móviles, causando scroll horizontal y mala experiencia de usuario
+- **Solución**:
+  - **LevelManager**: Convertido de grid fijo a layout flex/grid adaptativo
+  - **PrizeStructureManager**: Implementado layout responsive con etiquetas móviles
+  - Añadidas etiquetas descriptivas para cada campo que se muestran solo en móvil
+  - Encabezados de tabla ocultos en móvil (`hidden sm:grid`)
+  - Layout adaptativo: `flex flex-col` en móvil, `sm:grid` en desktop
+  - Espaciado consistente y responsive en resúmenes y headers
+- **Archivos Modificados**:
+  - `src/components/ui/level-manager.tsx` - Layout responsive completo
+  - `src/components/ui/prize-structure-manager.tsx` - Layout responsive completo
+- **Características Implementadas**:
+  - **Etiquetas móviles**: Cada campo tiene su etiqueta descriptiva en móvil
+  - **Layout adaptativo**: Columnas verticales en móvil, grid en desktop
+  - **Encabezados inteligentes**: Visibles solo en desktop donde son útiles
+  - **Espaciado responsive**: `space-y-1` para campos, `gap-3` para grids
+  - **Headers flexibles**: `flex-col gap-4 sm:flex-row` para adaptabilidad
+- **Mejoras de UX**:
+  - Eliminado scroll horizontal en móviles
+  - Campos claramente etiquetados en pantallas pequeñas
+  - Navegación más intuitiva en formularios móviles
+  - Mejor aprovechamiento del espacio vertical en móviles
+- **Impacto**: Experiencia móvil completamente optimizada, sin scroll horizontal, formularios más usables en dispositivos pequeños
+
+### ✅ CORRECCIÓN-012: Actualización Dinámica de Bounties en Tiempo Real
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Implementación de actualización automática del total de bounties cuando se añaden o quitan jugadores durante el torneo
+- **Problema**: El total de bounties no se actualizaba automáticamente al cambiar el número de jugadores durante un torneo activo
+- **Solución**:
+  - Añadido cálculo dinámico `totalBounties` que se actualiza automáticamente con el número de jugadores
+  - Integrado en el cálculo del bote total para reflejar bounties en tiempo real
+  - Actualización inmediata en la interfaz cuando se modifican jugadores
+  - Separación clara entre bounties y otros componentes del bote
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Cálculo dinámico de bounties
+- **Características Nuevas**:
+  - Cálculo automático: `totalBounties = jugadores × bounty_por_jugador`
+  - Actualización en tiempo real al añadir/quitar jugadores
+  - Visualización separada en la información del bote
+  - Integración en el cálculo del bote total
+- **Impacto**: Los torneos bounty ahora reflejan correctamente el valor total de bounties en tiempo real
+
+### ✅ CORRECCIÓN-011: Integración de Puntos de Puntualidad en Total de Fichas
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Implementación completa del sistema de puntos de puntualidad que se integra automáticamente en el cálculo de fichas totales y stack promedio
+- **Problema**: Los puntos de puntualidad no se reflejaban en el total de fichas en juego ni en el stack promedio, causando cálculos incorrectos
 - **Solución**:
   - Añadido estado `punctualityBonusPlayers` para rastrear jugadores que recibieron el bono
   - Modificada función `addPlayer()` para detectar automáticamente si aplica el bono

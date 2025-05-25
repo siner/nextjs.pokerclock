@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import GameTemplatesTable from "@/components/tables/gametemplates-table";
 import { GameTemplatesTableSkeleton } from "@/components/ui/loading";
 import { type GameTemplate } from "@/types";
@@ -40,7 +39,7 @@ export default function GameTemplatesPageClient() {
   return (
     <div className="w-full">
       {/* Header con navegación */}
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         {/* Botones de navegación */}
         <div className="flex items-center gap-2">
           <Button
@@ -51,7 +50,7 @@ export default function GameTemplatesPageClient() {
             title="Ir al inicio"
           >
             <HomeIcon className="size-4" />
-            <span className="hidden md:inline">Inicio</span>
+            <span className="hidden sm:inline">Inicio</span>
           </Button>
 
           <Button
@@ -62,14 +61,16 @@ export default function GameTemplatesPageClient() {
             title="Ver historial"
           >
             <HistoryIcon className="size-4" />
-            <span className="hidden md:inline">Historial</span>
+            <span className="hidden sm:inline">Historial</span>
           </Button>
         </div>
 
         {/* Título */}
         <div className="flex-1 text-center md:text-left">
-          <h1 className="text-3xl font-bold">Plantillas de Torneo</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold sm:text-3xl">
+            Plantillas de Torneo
+          </h1>
+          <p className="text-sm text-muted-foreground sm:text-base">
             Gestiona y crea plantillas para tus torneos
           </p>
         </div>

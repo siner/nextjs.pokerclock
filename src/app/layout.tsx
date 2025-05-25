@@ -34,8 +34,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="flex flex-col items-start justify-items-start p-4 pb-20 font-[family-name:var(--font-geist-sans)] text-foreground sm:p-10">
-            <div className="mb-4 flex w-full items-center justify-end">
+          <div className="flex flex-col items-start justify-items-start p-4 pb-20 font-[family-name:var(--font-geist-sans)] text-foreground sm:p-6 lg:p-10">
+            <div className="mb-4 flex w-full items-center justify-end sm:mb-6">
               <ThemeToggle />
             </div>
             {children}

@@ -26,19 +26,19 @@ export default function PlayPageClient({ children }: PlayPageClientProps) {
   };
 
   return (
-    <main className="flex w-full flex-col items-start gap-8">
-      <div className="flex flex-col items-start gap-4">
+    <main className="flex w-full flex-col items-start gap-4 sm:gap-8">
+      <div className="flex flex-col items-start gap-2 sm:gap-4">
         {hasActiveGame ? (
           <ExitConfirmationDialog
             onConfirm={handleExit}
             hasUnsavedChanges={false}
           >
-            <Button size="lg" variant="outline">
+            <Button size="sm" variant="outline" className="sm:size-lg">
               Volver
             </Button>
           </ExitConfirmationDialog>
         ) : (
-          <Button size="lg" variant="outline">
+          <Button size="sm" variant="outline" className="sm:size-lg">
             <Link href="/gametemplates">Volver</Link>
           </Button>
         )}

@@ -34,10 +34,10 @@ export default function Home() {
               <SparklesIcon className="mr-2 size-4" />
               Gestión Profesional de Torneos
             </Badge>
-            <h1 className="mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-6xl font-bold text-transparent md:text-8xl">
+            <h1 className="mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-4xl font-bold text-transparent sm:text-5xl md:text-6xl lg:text-8xl">
               Poker Clock
             </h1>
-            <p className="mx-auto max-w-3xl text-xl leading-relaxed text-slate-600 dark:text-slate-300 md:text-2xl">
+            <p className="mx-auto max-w-3xl text-lg leading-relaxed text-slate-600 dark:text-slate-300 sm:text-xl md:text-2xl">
               La herramienta definitiva para organizar y gestionar torneos de
               poker profesionales. Cronómetro avanzado, gestión de plantillas y
               seguimiento completo.
@@ -46,7 +46,7 @@ export default function Home() {
         </div>
 
         {/* Navigation Cards */}
-        <div className="mb-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-16 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
           {/* Crear Plantilla */}
           <Card className="group flex flex-col border-0 bg-gradient-to-br from-green-50 to-emerald-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:from-green-950 dark:to-emerald-900">
             <CardHeader className="flex-1 pb-4 text-center">
@@ -172,10 +172,10 @@ export default function Home() {
 
         {/* Features Section */}
         <div className="mb-16">
-          <h2 className="mb-8 text-center text-3xl font-bold text-slate-800 dark:text-slate-200">
+          <h2 className="mb-6 text-center text-2xl font-bold text-slate-800 dark:text-slate-200 sm:mb-8 sm:text-3xl">
             Características Principales
           </h2>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
                 <ClockIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -226,7 +226,7 @@ export default function Home() {
         {/* Quick Start Guide */}
         <Card className="mb-16 border-0 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-slate-800 dark:text-slate-200">
+            <CardTitle className="text-xl text-slate-800 dark:text-slate-200 sm:text-2xl">
               Guía Rápida
             </CardTitle>
             <CardDescription className="text-slate-600 dark:text-slate-400">
@@ -234,7 +234,7 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
               <div className="text-center">
                 <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-green-600 font-bold text-white">
                   1

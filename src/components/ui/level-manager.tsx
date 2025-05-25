@@ -105,7 +105,7 @@ export function LevelManager({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
             Estructura de Niveles
@@ -158,11 +158,11 @@ export function LevelManager({
           </div>
         ) : (
           <>
-            {/* Encabezados */}
+            {/* Encabezados - Ocultos en móvil */}
             <div
               className={cn(
-                "grid gap-3 text-sm font-medium text-muted-foreground",
-                showAnteColumn ? "grid-cols-6" : "grid-cols-5"
+                "hidden gap-3 text-sm font-medium text-muted-foreground sm:grid",
+                showAnteColumn ? "sm:grid-cols-6" : "sm:grid-cols-5"
               )}
             >
               <span>Ciega Pequeña</span>
@@ -179,93 +179,125 @@ export function LevelManager({
                 <div
                   key={index}
                   className={cn(
-                    "grid gap-3 rounded-lg border p-4 transition-colors",
+                    "flex flex-col gap-3 rounded-lg border p-4 transition-colors sm:grid sm:gap-3",
                     index % 2 === 0 ? "bg-muted/30" : "bg-background",
-                    showAnteColumn ? "grid-cols-6" : "grid-cols-5"
+                    showAnteColumn ? "sm:grid-cols-6" : "sm:grid-cols-5"
                   )}
                 >
                   {/* Ciega Pequeña */}
-                  <EnhancedInput
-                    type="number"
-                    placeholder="25"
-                    value={level.sb}
-                    onValueChange={(value) => updateLevel(index, "sb", value)}
-                    error={errors[`levels.${index}.sb`]}
-                    warning={warnings[`levels.${index}.sb`]}
-                    icon={<Coins className="h-4 w-4" />}
-                    tooltip="Ciega pequeña para este nivel"
-                  />
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-muted-foreground sm:hidden">
+                      Ciega Pequeña
+                    </label>
+                    <EnhancedInput
+                      type="number"
+                      placeholder="25"
+                      value={level.sb}
+                      onValueChange={(value) => updateLevel(index, "sb", value)}
+                      error={errors[`levels.${index}.sb`]}
+                      warning={warnings[`levels.${index}.sb`]}
+                      icon={<Coins className="h-4 w-4" />}
+                      tooltip="Ciega pequeña para este nivel"
+                    />
+                  </div>
 
                   {/* Ciega Grande */}
-                  <EnhancedInput
-                    type="number"
-                    placeholder="50"
-                    value={level.bb}
-                    onValueChange={(value) => updateLevel(index, "bb", value)}
-                    error={errors[`levels.${index}.bb`]}
-                    warning={warnings[`levels.${index}.bb`]}
-                    icon={<Coins className="h-4 w-4" />}
-                    tooltip="Ciega grande para este nivel"
-                  />
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-muted-foreground sm:hidden">
+                      Ciega Grande
+                    </label>
+                    <EnhancedInput
+                      type="number"
+                      placeholder="50"
+                      value={level.bb}
+                      onValueChange={(value) => updateLevel(index, "bb", value)}
+                      error={errors[`levels.${index}.bb`]}
+                      warning={warnings[`levels.${index}.bb`]}
+                      icon={<Coins className="h-4 w-4" />}
+                      tooltip="Ciega grande para este nivel"
+                    />
+                  </div>
 
                   {/* Ante (condicional) */}
                   {showAnteColumn && (
-                    <EnhancedInput
-                      type="number"
-                      placeholder="0"
-                      value={level.ante}
-                      onValueChange={(value) =>
-                        updateLevel(index, "ante", value)
-                      }
-                      error={errors[`levels.${index}.ante`]}
-                      warning={warnings[`levels.${index}.ante`]}
-                      icon={<Coins className="h-4 w-4" />}
-                      tooltip="Ante obligatorio para todos los jugadores"
-                    />
+                    <div className="space-y-1">
+                      <label className="text-sm font-medium text-muted-foreground sm:hidden">
+                        Ante
+                      </label>
+                      <EnhancedInput
+                        type="number"
+                        placeholder="0"
+                        value={level.ante}
+                        onValueChange={(value) =>
+                          updateLevel(index, "ante", value)
+                        }
+                        error={errors[`levels.${index}.ante`]}
+                        warning={warnings[`levels.${index}.ante`]}
+                        icon={<Coins className="h-4 w-4" />}
+                        tooltip="Ante obligatorio para todos los jugadores"
+                      />
+                    </div>
                   )}
 
                   {/* Tiempo */}
-                  <TimeInput
-                    placeholder="20"
-                    value={level.time}
-                    onValueChange={(value) => updateLevel(index, "time", value)}
-                    error={errors[`levels.${index}.time`]}
-                    warning={warnings[`levels.${index}.time`]}
-                    tooltip="Duración del nivel en minutos"
-                  />
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-muted-foreground sm:hidden">
+                      Duración (min)
+                    </label>
+                    <TimeInput
+                      placeholder="20"
+                      value={level.time}
+                      onValueChange={(value) =>
+                        updateLevel(index, "time", value)
+                      }
+                      error={errors[`levels.${index}.time`]}
+                      warning={warnings[`levels.${index}.time`]}
+                      tooltip="Duración del nivel en minutos"
+                    />
+                  </div>
 
                   {/* Indicador de Progresión */}
-                  <div className="flex items-center justify-center">
-                    {getProgressionIndicator(index) || (
-                      <span className="text-xs text-muted-foreground">
-                        {index === 0 ? "Inicial" : "—"}
-                      </span>
-                    )}
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-muted-foreground sm:hidden">
+                      Progresión
+                    </label>
+                    <div className="flex items-center justify-center sm:justify-start">
+                      {getProgressionIndicator(index) || (
+                        <span className="text-xs text-muted-foreground">
+                          {index === 0 ? "Inicial" : "—"}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Acciones */}
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => duplicateLevel(index)}
-                      className="h-8 w-8 p-0"
-                      title="Duplicar nivel"
-                    >
-                      <GripVertical className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeLevel(index)}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                      title="Eliminar nivel"
-                      disabled={levels.length === 1}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-muted-foreground sm:hidden">
+                      Acciones
+                    </label>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => duplicateLevel(index)}
+                        className="h-8 w-8 p-0"
+                        title="Duplicar nivel"
+                      >
+                        <GripVertical className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeLevel(index)}
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        title="Eliminar nivel"
+                        disabled={levels.length === 1}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -273,7 +305,7 @@ export function LevelManager({
 
             {/* Resumen */}
             <div className="mt-6 rounded-lg bg-muted/50 p-4">
-              <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                   <span className="text-muted-foreground">Total Niveles:</span>
                   <p className="font-medium">{levels.length}</p>
