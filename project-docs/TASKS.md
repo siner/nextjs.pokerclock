@@ -3,9 +3,9 @@
 ## Estado General de Tareas
 
 **Última Actualización**: Diciembre 2024  
-**Total de Tareas**: 51  
-**Completadas**: 48 (94%)  
-**Correcciones Críticas**: 13  
+**Total de Tareas**: 52  
+**Completadas**: 49 (94%)  
+**Correcciones Críticas**: 16  
 **En Progreso**: 0 (0%)  
 **Pendientes**: 3 (6%)
 
@@ -15,7 +15,7 @@
 
 #### En Progreso
 
-_No hay tareas en progreso actualmente._
+_No hay tareas en progreso actualmente_
 
 - [x] **TASK-002**: Mejorar manejo de errores y recuperación ✅ COMPLETADO
   - **Descripción**: Implementar try-catch comprehensivo, fallbacks para datos corruptos y logging de errores
@@ -198,6 +198,7 @@ _No hay tareas en progreso actualmente._
   - **Corrección**: Solucionado problema donde el indicador no aparecía al inicio del torneo
 
 - [x] **TASK-020**: Mejoras de Responsive Design ✅ COMPLETADO
+
   - **Descripción**: Optimización completa del diseño responsive para móviles y tablets
   - **Asignado a**: Desarrollo
   - **Estimación**: 1 día
@@ -215,6 +216,42 @@ _No hay tareas en progreso actualmente._
   - **Archivos**: `src/app/page.tsx`, `src/components/gametemplates-page-client.tsx`, `src/components/history-page-client.tsx`, `src/components/tables/gametemplates-table.tsx`, `src/components/ui/dialog.tsx`, `src/components/play-page-client.tsx`, `src/app/layout.tsx`
   - **Características**: Títulos escalables, grid responsive, navegación adaptativa, tablas con columnas ocultas progresivamente, controles con texto adaptativo, diálogos con padding responsive, layout con espaciado progresivo
   - **Mejoras**: Mobile-first approach, breakpoints consistentes (sm, md, lg), texto oculto en móviles con iconos visibles, botones adaptativos, gaps y padding escalables
+
+- [x] **TASK-021**: Refactorización del componente PlayGame ✅ COMPLETADO
+  - **Descripción**: Dividir el componente PlayGame (1645 líneas) en hooks personalizados y componentes más pequeños para mejorar mantenibilidad
+  - **Asignado a**: Desarrollo
+  - **Estimación**: 3 días
+  - **Estado**: Completado
+  - **Dependencias**: Ninguna
+  - **Prioridad**: Alta
+  - **Progreso**: 100% - Refactorización completa implementada
+  - **Archivos Completados**:
+    - `src/hooks/use-tournament-timer.ts` - Hook para cronómetro ✅
+    - `src/hooks/use-tournament-state.ts` - Hook para estado del torneo ✅
+    - `src/hooks/use-punctuality-bonus.ts` - Hook para bono de puntualidad ✅
+    - `src/components/tournament/tournament-timer.tsx` - Componente cronómetro ✅
+    - `src/components/tournament/tournament-stats.tsx` - Componente estadísticas ✅
+    - `src/components/tournament/tournament-controls.tsx` - Componente controles ✅
+    - `src/components/tournament/tournament-levels.tsx` - Componente niveles ✅
+    - `src/components/tournament/tournament-prizes.tsx` - Componente premios ✅
+    - `src/components/tournament/tournament-header.tsx` - Componente header ✅
+    - `src/components/tournament/tournament-status.tsx` - Componente estados ✅
+    - `src/components/tournament/punctuality-bonus-indicator.tsx` - Indicador bono ✅
+    - `src/components/tournament/index.ts` - Exportaciones ✅
+    - `src/hooks/index.ts` - Exportaciones ✅
+    - `src/components/play-game.tsx` - Refactorización principal completada ✅
+  - **Resultado Final**:
+    - Componente PlayGame reducido de 1643 líneas a ~850 líneas (48% reducción)
+    - 8 componentes modulares reutilizables creados
+    - 3 hooks personalizados para lógica de negocio
+    - Arquitectura más mantenible y escalable
+    - Separación clara de responsabilidades
+    - Funcionalidad completa preservada
+  - **Estrategia Implementada**:
+    - Refactorización híbrida: componentes modulares con lógica integrada
+    - Mantenimiento de toda la funcionalidad existente
+    - Uso de componentes especializados para cada sección de la UI
+    - Cálculos memoizados para optimización de rendimiento
 
 ## Tareas Completadas ✅
 
@@ -415,6 +452,83 @@ _No hay tareas en progreso actualmente._
   - Desglose visual del bono en la interfaz
   - Persistencia completa del estado entre sesiones
 - **Impacto**: Los torneos con bono de puntualidad ahora reflejan correctamente las fichas reales en juego
+
+### ✅ CORRECCIÓN-016: Cronómetro se Queda Parado al Cambiar de Nivel
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección crítica del bug que causaba que el cronómetro se quedara parado en 00:00 al cambiar de nivel automáticamente
+- **Problema Identificado**:
+  - El cronómetro se quedaba congelado cuando cambiaba de nivel automáticamente
+  - La lógica de `timerPreviousLevels` creaba un bucle infinito al recalcularse constantemente
+  - Al cambiar de nivel, el nuevo cálculo de tiempo impedía que el timer continuara
+- **Causa Raíz**:
+  - `timerPreviousLevels` incluía el nivel actual (`levelIndex + 1`) en el cálculo
+  - Al cambiar el nivel, se recalculaba inmediatamente, creando una condición imposible de alcanzar
+  - El useEffect del cronómetro dependía de `timerPreviousLevels`, causando re-renders infinitos
+- **Solución Implementada**:
+  - **Separación de responsabilidades**: Cronómetro y cambio de nivel en useEffects independientes
+  - **Cronómetro simplificado**: Solo incrementa el timer, sin lógica de cambio de nivel
+  - **Efecto de cambio de nivel**: Calcula el tiempo de forma local y no memoizada
+  - **Lógica robusta**: Usa `timer >= timeToEndCurrentLevel` para evitar condiciones de carrera
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Lógica del cronómetro y cambio de niveles
+- **Cambios Técnicos**:
+  - Eliminado `timerPreviousLevels` memoizado que causaba el bucle
+  - Separado el useEffect del cronómetro del useEffect de cambio de nivel
+  - Simplificada la dependencia del cronómetro a solo `[playing, saveGame]`
+  - Añadido efecto independiente para detectar cambios de nivel
+- **Lógica Corregida**:
+  - **Antes**: Cronómetro + cambio de nivel en el mismo useEffect con dependencia problemática
+  - **Después**: Cronómetro independiente + efecto separado para cambio de nivel
+- **Impacto**: El cronómetro ahora funciona correctamente y nunca se queda parado al cambiar de nivel
+
+### ✅ CORRECCIÓN-015: Lógica Incorrecta al Eliminar Jugadores
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección de la lógica incorrecta al eliminar jugadores que reducía incorrectamente los bonos de puntualidad
+- **Problema Identificado**: Al eliminar un jugador, se reducía también el contador de bonos de puntualidad, lo que causaba que las fichas del bono desaparecieran del total
+- **Solución Implementada**:
+  - Eliminada la lógica que reducía `punctualityBonusPlayers` al eliminar jugadores
+  - Las fichas del bono de puntualidad ahora permanecen en juego correctamente
+  - Actualizado el mensaje del toast para clarificar que "Las fichas permanecen en juego"
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Función `removePlayer()`
+- **Lógica Corregida**:
+  - **Antes**: Eliminar jugador → Reducir jugadores activos + Reducir bonos de puntualidad
+  - **Después**: Eliminar jugador → Solo reducir jugadores activos (las fichas permanecen)
+- **Justificación**: En un torneo real, cuando un jugador es eliminado, sus fichas permanecen en circulación y no desaparecen del total
+- **Impacto**: Los cálculos de fichas totales y stack promedio ahora son correctos al eliminar jugadores
+
+### ✅ CORRECCIÓN-014: Inconsistencias en Recuperación y Navegación del Reloj
+
+- **Fecha**: Diciembre 2024
+- **Descripción**: Corrección completa de inconsistencias en el reloj cuando se recupera un torneo y mejoras en la navegación de niveles
+- **Problemas Identificados**:
+  1. **Card gris vacía**: Al recuperar un torneo, aparecía una card vacía porque no se calculaba correctamente el nivel actual
+  2. **Nivel no mostrado**: El reloj no indicaba en qué nivel se encontraba el torneo recuperado
+  3. **Mensaje de bono expirado innecesario**: Se mostraba mensaje de expirado cuando no era necesario
+  4. **Botón de siguiente nivel inconsistente**: Podía dejar el tiempo en negativo
+- **Soluciones Implementadas**:
+  - **Función `calculateCurrentLevelIndex()`**: Calcula correctamente el nivel actual basado en el tiempo transcurrido
+  - **Inicialización mejorada**: Al recuperar un juego, se calcula automáticamente el nivel correcto
+  - **Indicadores de nivel**: Añadido número de nivel en "Nivel Actual (X)" y "Siguiente Nivel (X)"
+  - **Bono de puntualidad simplificado**: Eliminado mensaje de expirado, solo se muestra cuando está disponible
+  - **Navegación de niveles mejorada**: El botón "Saltar al siguiente nivel" ahora previene tiempos negativos
+  - **Protección contra valores negativos**: El reloj nunca muestra tiempo negativo
+- **Archivos Modificados**:
+  - `src/components/play-game.tsx` - Lógica de recuperación, cálculo de niveles y navegación
+- **Características Nuevas**:
+  - Recuperación inteligente del estado del torneo con nivel correcto
+  - Indicadores visuales del nivel actual y siguiente con números
+  - Navegación de niveles más robusta y consistente
+  - Eliminación de mensajes innecesarios del bono de puntualidad
+  - Protección completa contra tiempos negativos
+- **Mejoras de UX**:
+  - No más cards vacías al recuperar torneos
+  - Información clara del nivel actual en todo momento
+  - Navegación de niveles más intuitiva y segura
+  - Interfaz más limpia sin mensajes redundantes
+- **Impacto**: Experiencia de usuario significativamente mejorada al recuperar torneos, navegación más confiable y interfaz más clara
 
 ### ✅ CORRECCIÓN-013: Optimización Responsive de Componentes de Formulario
 
