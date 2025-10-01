@@ -41,8 +41,8 @@ export default function RootLayout({
             {children}
           </div>
           <Script
-            src="https://cloud.umami.is/script.js"
-            data-website-id="59069e22-bc18-4e31-9ddc-26d6d8b564ef"
+            src="https://umami.franmoreno.com/script.js"
+            data-website-id="4ed8c773-c855-479f-ac96-abaa15222e10"
             strategy="beforeInteractive"
           />
           <Toaster />
