@@ -1,5 +1,6 @@
+"use client";
+
 import { useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSignIcon, TrophyIcon, Target, Gift } from "lucide-react";
 import { Game, PrizeStructure } from "@/types";
 
@@ -22,69 +23,50 @@ export function TournamentPrizes({
   entries,
   currentPrizeStructure,
 }: TournamentPrizesProps) {
-  // Memoizar el cálculo de premios
-  const calculatedPrizes = useMemo(() => {
-    if (!currentPrizeStructure.prizes?.length) {
-      return [];
-    }
+  const prizes = useMemo(() => {
+    if (!currentPrizeStructure.prizes?.length) return [];
 
     let remainingPot = realPot - (game.bubble || 0);
-    const prizes = [];
-
-    for (let i = 0; i < currentPrizeStructure.prizes.length; i++) {
-      const newPrize =
+    return currentPrizeStructure.prizes.map((prize) => {
+      const calculated =
         Math.ceil(
-          ((realPot - (game.bubble || 0)) *
-            currentPrizeStructure.prizes[i].percentaje) /
-            100 /
-            5
+          ((realPot - (game.bubble || 0)) * prize.percentaje) / 100 / 5
         ) * 5;
-
-      const currentPrize = newPrize <= remainingPot ? newPrize : remainingPot;
-
-      prizes.push({
-        id: currentPrizeStructure.prizes[i].id,
-        percentaje: currentPrizeStructure.prizes[i].percentaje,
-        prize: currentPrize,
-      });
-      remainingPot -= newPrize;
-      if (remainingPot <= 0) {
-        break;
-      }
-    }
-
-    return prizes.map((prize) => (
-      <div key={prize.id} className="flex justify-between">
-        <small>{prize.id}º</small>
-        <strong>
-          {prize.prize.toLocaleString("es-ES", {
-            currency: "EUR",
-            style: "currency",
-            minimumFractionDigits: 0,
-          })}
-        </strong>
-      </div>
-    ));
+      const prizeValue = Math.max(0, Math.min(calculated, remainingPot));
+      remainingPot -= prizeValue;
+      return {
+        id: prize.id,
+        percent: prize.percentaje,
+        value: prizeValue,
+      };
+    });
   }, [currentPrizeStructure.prizes, realPot, game.bubble]);
 
-  if (!currentPrizeStructure?.prizes?.length) {
-    return null;
-  }
+  if (!prizes.length) return null;
 
   return (
-    <div className="space-y-6">
-      {/* Información del Bote */}
-      <Card className="bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-950 dark:to-green-900">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg text-emerald-700 dark:text-emerald-300">
-            <DollarSignIcon className="size-5" />
-            Información del Bote
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
+    <div className="space-y-4">
+      <div className="bg-surface rounded-2xl border border-border/60 p-5 shadow-[0_32px_120px_-80px_hsl(var(--shadow-soft))]">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-lg font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+              Información del bote
+            </p>
+            <span className="mt-1 flex items-center gap-2 text-4xl font-semibold text-foreground">
+              <DollarSignIcon className="h-5 w-5 text-[hsl(var(--accent))]" />
+              {realPot.toLocaleString("es-ES", {
+                currency: "EUR",
+                style: "currency",
+                minimumFractionDigits: 0,
+              })}
+            </span>
+          </div>
+        </div>
+
+        <div className="space-y-2 text-lg text-muted-foreground">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Bote Total</span>
-            <span className="font-bold text-emerald-700 dark:text-emerald-300">
+            <span>Bote total</span>
+            <span className="font-medium text-foreground">
               {totalPot.toLocaleString("es-ES", {
                 currency: "EUR",
                 style: "currency",
@@ -92,10 +74,9 @@ export function TournamentPrizes({
               })}
             </span>
           </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-red-600">Comisión</span>
-            <span className="font-medium text-red-600">
+          <div className="flex items-center justify-between text-red-500">
+            <span className="text-lg">Comisión</span>
+            <span>
               -
               {fee.toLocaleString("es-ES", {
                 currency: "EUR",
@@ -104,11 +85,10 @@ export function TournamentPrizes({
               })}
             </span>
           </div>
-
           {addonPot > 0 && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-blue-600">Addons</span>
-              <span className="font-medium text-blue-600">
+            <div className="flex items-center justify-between text-foreground">
+              <span>Add-ons</span>
+              <span>
                 +
                 {addonPot.toLocaleString("es-ES", {
                   currency: "EUR",
@@ -118,14 +98,12 @@ export function TournamentPrizes({
               </span>
             </div>
           )}
-
           {typeof game.extrapot === "number" && game.extrapot > 0 && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                <Gift className="size-3 text-green-600" />
-                <span className="text-sm text-green-600">Extra</span>
-              </div>
-              <span className="font-medium text-green-600">
+            <div className="flex items-center justify-between text-[hsl(var(--accent))]">
+              <span className="flex items-center gap-1">
+                <Gift className="h-4 w-4" /> Extra
+              </span>
+              <span>
                 +
                 {game.extrapot.toLocaleString("es-ES", {
                   currency: "EUR",
@@ -135,16 +113,13 @@ export function TournamentPrizes({
               </span>
             </div>
           )}
-
           {typeof game.bounty === "number" && game.bounty > 0 && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                <Target className="size-3 text-orange-600" />
-                <span className="text-sm text-orange-600">
-                  {entries} bounty{entries !== 1 ? "s" : ""}
-                </span>
-              </div>
-              <span className="font-medium text-orange-600">
+            <div className="flex items-center justify-between text-orange-500">
+              <span className="flex items-center gap-1">
+                <Target className="h-4 w-4" />
+                {entries} bounty{entries !== 1 ? "s" : ""}
+              </span>
+              <span>
                 {(entries * game.bounty).toLocaleString("es-ES", {
                   currency: "EUR",
                   style: "currency",
@@ -153,53 +128,56 @@ export function TournamentPrizes({
               </span>
             </div>
           )}
+        </div>
+      </div>
 
-          <div className="border-t pt-3">
-            <div className="flex items-center justify-between">
-              <span className="font-bold">Bote Real</span>
-              <span className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
-                {realPot.toLocaleString("es-ES", {
+      <div className="bg-surface-muted/70 rounded-2xl border border-border/60 p-5 shadow-[0_32px_120px_-80px_hsl(var(--shadow-soft))]">
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <p className="text-lg font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+              Reparto de premios
+            </p>
+            {currentPrizeStructure.max_players && (
+              <p className="mt-1 text-lg text-muted-foreground">
+                Hasta {currentPrizeStructure.max_players} jugadores
+              </p>
+            )}
+          </div>
+          <TrophyIcon className="h-5 w-5 text-[hsl(var(--accent))]" />
+        </div>
+        <div className="space-y-2 text-lg">
+          {prizes.map((prize) => (
+            <div
+              key={prize.id}
+              className="bg-surface flex items-center justify-between rounded-lg border border-border/50 px-3 py-2"
+            >
+              <span className="font-medium text-muted-foreground">
+                {prize.id}º · {prize.percent}%
+              </span>
+              <span className="font-semibold text-foreground">
+                {prize.value.toLocaleString("es-ES", {
                   currency: "EUR",
                   style: "currency",
                   minimumFractionDigits: 0,
                 })}
               </span>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          ))}
+        </div>
 
-      {/* Estructura de Premios */}
-      <Card className="bg-gradient-to-br from-yellow-50 to-amber-100 dark:from-yellow-950 dark:to-amber-900">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg text-amber-700 dark:text-amber-300">
-            <TrophyIcon className="size-5" />
-            Premios
-          </CardTitle>
-          {currentPrizeStructure.max_players && (
-            <p className="text-xs text-amber-600 dark:text-amber-400">
-              Estructura para máx. {currentPrizeStructure.max_players} jugadores
-            </p>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {calculatedPrizes}
-          {typeof game.bubble === "number" && game.bubble > 0 && (
-            <div className="mt-3 border-t pt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-orange-600">Burbuja</span>
-                <span className="font-medium text-orange-600">
-                  {Math.round(game.bubble).toLocaleString("es-ES", {
-                    currency: "EUR",
-                    style: "currency",
-                    minimumFractionDigits: 0,
-                  })}
-                </span>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {typeof game.bubble === "number" && game.bubble > 0 && (
+          <div className="bg-surface mt-4 flex items-center justify-between rounded-lg border border-border/50 px-3 py-2 text-sm text-orange-500">
+            <span>Burbuja</span>
+            <span>
+              {Math.round(game.bubble).toLocaleString("es-ES", {
+                currency: "EUR",
+                style: "currency",
+                minimumFractionDigits: 0,
+              })}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

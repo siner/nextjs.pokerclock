@@ -40,6 +40,7 @@ import {
 } from "@/lib/export-utils";
 import { GameTemplate } from "@/types";
 import { ButtonLoading } from "@/components/ui/loading";
+import { trackEvent } from "@/lib/analytics";
 
 interface ExportDialogProps {
   children: React.ReactNode;
@@ -95,6 +96,20 @@ export function ExportDialog({
       }
 
       if (result.success) {
+        if (exportType === "history") {
+          trackEvent("history_export_success", {
+            total: currentInfo.count,
+            mode: "dialog",
+            format,
+          });
+        } else {
+          trackEvent("templates_export", {
+            total: currentInfo.count,
+            mode: "dialog",
+            format,
+            type: exportType,
+          });
+        }
         toast({
           title: "¡Exportación exitosa!",
           description: `Archivo "${result.filename}" descargado correctamente.`,
@@ -104,6 +119,12 @@ export function ExportDialog({
         throw new Error(result.error || "Error desconocido");
       }
     } catch (error) {
+      if (exportType === "history") {
+        trackEvent("history_export_error", {
+          mode: "dialog",
+          format,
+        });
+      }
       toast({
         title: "Error en la exportación",
         description:
@@ -369,6 +390,12 @@ export function QuickExportButton({
     try {
       const options: ExportOptions = { format, includeMetadata: true };
       let result;
+      const totals: Record<ExportType, number> = {
+        templates: templates.length,
+        history: tournamentHistory.length,
+        statistics: 1,
+        all: templates.length + tournamentHistory.length,
+      };
 
       switch (type) {
         case "templates":
@@ -390,6 +417,20 @@ export function QuickExportButton({
       }
 
       if (result.success) {
+        if (type === "history") {
+          trackEvent("history_export_success", {
+            total: totals.history,
+            mode: "quick",
+            format,
+          });
+        } else {
+          trackEvent("templates_export", {
+            total: totals[type],
+            mode: "quick",
+            format,
+            type,
+          });
+        }
         toast({
           title: "¡Exportación exitosa!",
           description: `Archivo "${result.filename}" descargado correctamente.`,
@@ -398,6 +439,12 @@ export function QuickExportButton({
         throw new Error(result.error || "Error desconocido");
       }
     } catch (error) {
+      if (type === "history") {
+        trackEvent("history_export_error", {
+          mode: "quick",
+          format,
+        });
+      }
       toast({
         title: "Error en la exportación",
         description:

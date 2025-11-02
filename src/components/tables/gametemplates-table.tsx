@@ -48,6 +48,7 @@ import {
   PredefinedTemplatesDialog,
   QuickTemplateButton,
 } from "@/components/ui/predefined-templates-dialog";
+import { trackEvent } from "@/lib/analytics";
 
 export default function GameTemplatesTable({ title }: { title?: string }) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -70,6 +71,9 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
 
         if (validationResult.isValid && validationResult.data) {
           setGametemplates(validationResult.data);
+          trackEvent("templates_loaded", {
+            total: validationResult.data.length,
+          });
 
           // Mostrar advertencias si hubo recuperación de datos
           if (
@@ -165,6 +169,9 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
   async function removeTemplate(id: number) {
     setIsDeleting(true);
     try {
+      const templateToRemove = gametemplates.find(
+        (gametemplate) => gametemplate.id === id
+      );
       const newGameTemplates = gametemplates.filter(
         (gametemplate) => gametemplate.id !== id
       );
@@ -174,6 +181,11 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
       if (success) {
         // Actualizar el estado local
         setGametemplates(newGameTemplates);
+
+        trackEvent("template_delete_confirmed", {
+          templateId: id,
+          name: templateToRemove?.name,
+        });
 
         toast({
           title: "Plantilla eliminada",
@@ -506,7 +518,15 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                             className="h-8 w-8 p-0"
                             title="Jugar torneo"
                           >
-                            <Link href={`/play?template=${gametemplate.id}`}>
+                            <Link
+                              href={`/play?template=${gametemplate.id}`}
+                              onClick={() =>
+                                trackEvent("template_play_clicked", {
+                                  templateId: gametemplate.id,
+                                  name: gametemplate.name,
+                                })
+                              }
+                            >
                               <PlayIcon className="size-4 text-green-600" />
                             </Link>
                           </Button>
@@ -516,7 +536,15 @@ export default function GameTemplatesTable({ title }: { title?: string }) {
                             className="h-8 w-8 p-0"
                             title="Editar plantilla"
                           >
-                            <Link href={`/gametemplates/${gametemplate.id}`}>
+                            <Link
+                              href={`/gametemplates/${gametemplate.id}`}
+                              onClick={() =>
+                                trackEvent("template_edit_clicked", {
+                                  templateId: gametemplate.id,
+                                  name: gametemplate.name,
+                                })
+                              }
+                            >
                               <PencilIcon className="size-4 text-blue-600" />
                             </Link>
                           </Button>

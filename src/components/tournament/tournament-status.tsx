@@ -1,4 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
+"use client";
+
 import { PauseIcon } from "lucide-react";
 import { Game } from "@/types";
 
@@ -20,67 +21,45 @@ export function TournamentStatus({
   game,
   entriesStatus,
 }: TournamentStatusProps) {
+  const showPauseAlert = !playing && timer > 0;
+  const showEntries = Boolean(game.last_entry_level);
+
   return (
-    <div className="space-y-4">
-      {/* Estado del juego - Pausa */}
-      {!playing && timer > 0 && (
-        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-          <CardContent className="p-3 md:p-5">
-            <div className="flex items-center justify-center gap-2">
-              <PauseIcon className="size-4 text-red-600 md:size-5" />
-              <p className="text-base font-bold text-red-700 dark:text-red-300 md:text-lg">
-                TORNEO EN PAUSA
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="space-y-3">
+      {showPauseAlert && (
+        <div className="flex items-center justify-center gap-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-semibold text-red-600 shadow-[0_20px_60px_-55px_rgba(248,113,113,0.7)] dark:border-red-400/40 dark:bg-red-500/15 dark:text-red-200">
+          <PauseIcon className="h-4 w-4" />
+          Torneo en pausa
+        </div>
       )}
 
-      {/* Estado de entradas */}
-      {game.last_entry_level && (
-        <Card
-          className={`${
-            entriesStatus.closed
-              ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950"
-              : "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950"
-          }`}
-        >
-          <CardContent className="p-5">
-            <div className="text-center">
-              <div className="mb-2 flex items-center justify-center gap-2">
-                <span className="text-2xl">
-                  {entriesStatus.closed ? "🔒" : "🚪"}
-                </span>
-                <h3
-                  className={`text-lg font-bold ${
-                    entriesStatus.closed
-                      ? "text-red-700 dark:text-red-300"
-                      : "text-green-700 dark:text-green-300"
-                  }`}
-                >
-                  {entriesStatus.closed
-                    ? "Entradas Cerradas"
-                    : "Entradas Abiertas"}
-                </h3>
-              </div>
-              <p
-                className={`text-sm ${
-                  entriesStatus.closed
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-green-600 dark:text-green-400"
-                }`}
-              >
+      {showEntries && (
+        <div className="bg-surface rounded-2xl border border-border/60 p-4 shadow-[0_26px_90px_-70px_hsl(var(--shadow-soft))]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                Estado de entradas
+              </p>
+              <h3 className="mt-1 text-lg font-semibold text-foreground">
+                {entriesStatus.closed
+                  ? "Entradas cerradas"
+                  : "Entradas abiertas"}
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
                 {entriesStatus.message}
               </p>
-              {!entriesStatus.closed && entriesStatus.lastLevel && (
-                <p className="mt-1 text-xs text-orange-500">
-                  ⚠️ Las entradas se cerrarán en el nivel{" "}
-                  {entriesStatus.lastLevel + 1}
-                </p>
-              )}
             </div>
-          </CardContent>
-        </Card>
+            <span className="text-2xl" aria-hidden>
+              {entriesStatus.closed ? "🔒" : "🚪"}
+            </span>
+          </div>
+          {!entriesStatus.closed && entriesStatus.lastLevel !== null && (
+            <p className="mt-3 text-xs text-[hsl(var(--accent))]">
+              Las entradas se cerrarán al final del nivel{" "}
+              {entriesStatus.lastLevel + 1}.
+            </p>
+          )}
+        </div>
       )}
     </div>
   );

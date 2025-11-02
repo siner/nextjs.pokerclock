@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { trackEvent } from "@/lib/analytics";
 
 export default function HistoryPageClient() {
   const { toast } = useToast();
@@ -93,6 +94,9 @@ export default function HistoryPageClient() {
 
       setHistory(historyData);
       setStats(statsData);
+      trackEvent("history_loaded", {
+        total: historyData.length,
+      });
     } catch (error) {
       console.error("Error loading history:", error);
       toast({
@@ -136,6 +140,22 @@ export default function HistoryPageClient() {
     }
 
     setFilteredHistory(filtered);
+
+    const hasAnyFilter =
+      Boolean(filters.search) ||
+      Boolean(filters.dateFrom) ||
+      Boolean(filters.dateTo) ||
+      Boolean(filters.minPlayers) ||
+      Boolean(filters.maxPlayers);
+
+    if (hasAnyFilter) {
+      trackEvent("history_filter_applied", {
+        hasSearch: Boolean(filters.search),
+        dateRange: Boolean(filters.dateFrom || filters.dateTo),
+        playersRange: Boolean(filters.minPlayers || filters.maxPlayers),
+        resultCount: filtered.length,
+      });
+    }
   };
 
   const handleDeleteTournament = async (tournamentId: number) => {
@@ -145,6 +165,9 @@ export default function HistoryPageClient() {
       toast({
         title: "Torneo eliminado",
         description: "El torneo se eliminó correctamente del historial.",
+      });
+      trackEvent("history_delete_tournament", {
+        tournamentId,
       });
     } catch (error) {
       toast({
@@ -162,6 +185,9 @@ export default function HistoryPageClient() {
       toast({
         title: "Historial limpiado",
         description: "Se eliminó todo el historial de torneos.",
+      });
+      trackEvent("history_clear_all", {
+        totalBefore: history.length,
       });
     } catch (error) {
       toast({
@@ -189,7 +215,14 @@ export default function HistoryPageClient() {
         title: "Historial exportado",
         description: "El archivo se descargó correctamente.",
       });
+      trackEvent("history_export_success", {
+        total: history.length,
+        mode: "page",
+      });
     } catch (error) {
+      trackEvent("history_export_error", {
+        mode: "page",
+      });
       toast({
         title: "Error",
         description: "No se pudo exportar el historial.",
@@ -212,7 +245,19 @@ export default function HistoryPageClient() {
           title: "Historial importado",
           description: "Los datos se importaron correctamente.",
         });
+        const parsed = JSON.parse(content ?? "null");
+        const total = Array.isArray(parsed)
+          ? parsed.length
+          : Array.isArray((parsed as { history?: unknown[] })?.history)
+            ? (parsed as { history: unknown[] }).history.length
+            : undefined;
+        trackEvent("history_import_success", {
+          total,
+        });
       } catch (error) {
+        trackEvent("history_import_error", {
+          message: error instanceof Error ? error.message : "unknown",
+        });
         toast({
           title: "Error",
           description:
@@ -522,7 +567,12 @@ export default function HistoryPageClient() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => setSelectedTournament(tournament)}
+                              onClick={() => {
+                                setSelectedTournament(tournament);
+                                trackEvent("history_view_details", {
+                                  tournamentId: tournament.id,
+                                });
+                              }}
                             >
                               <EyeIcon className="h-4 w-4" />
                             </Button>

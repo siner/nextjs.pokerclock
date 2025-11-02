@@ -35,6 +35,7 @@ import {
   Calculator,
   Clock,
 } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export default function GameTemplateForm({
   gametemplate,
@@ -100,6 +101,7 @@ export default function GameTemplateForm({
   // Detectar cambios sin guardar
   const [hasChanges, setHasChanges] = useState(false);
   const [originalData, setOriginalData] = useState<string>("");
+  const [hasTrackedStart, setHasTrackedStart] = useState(false);
 
   const { showExitConfirmation, handleNavigation, confirmExit, cancelExit } =
     useUnsavedChanges(hasChanges);
@@ -151,9 +153,24 @@ export default function GameTemplateForm({
     if (!originalData) {
       setOriginalData(currentData);
     } else {
-      setHasChanges(currentData !== originalData);
+      const hasDifferences = currentData !== originalData;
+      setHasChanges(hasDifferences);
+
+      if (hasDifferences && !hasTrackedStart) {
+        trackEvent("template_form_started", {
+          mode: gametemplate ? "edit" : "create",
+        });
+        setHasTrackedStart(true);
+      }
     }
-  }, [newGameTemplate, levels, prizeStructures, originalData]);
+  }, [
+    newGameTemplate,
+    levels,
+    prizeStructures,
+    originalData,
+    hasTrackedStart,
+    gametemplate,
+  ]);
 
   // Validar cuando cambian los datos
   useEffect(() => {
@@ -186,6 +203,11 @@ export default function GameTemplateForm({
       toast({
         description: `Se encontraron ${validation.errors.length} errores de validación. Por favor, corrígelos antes de continuar.`,
         variant: "destructive",
+      });
+      trackEvent("template_validation_failed", {
+        errors: validation.errors.length,
+        warnings: validation.warnings.length,
+        mode: gametemplate ? "edit" : "create",
       });
       return;
     }
@@ -232,6 +254,14 @@ export default function GameTemplateForm({
         });
       }
 
+      trackEvent("template_save_success", {
+        mode: gametemplate ? "edit" : "create",
+        id: gametemplate ? gametemplate.id : newGameTemplate.id,
+        levels: levels.length,
+        buyIn: Number(newGameTemplate.entry) || 0,
+        warnings: validation.warnings.length,
+      });
+
       // Resetear estado de cambios después de guardar
       setHasChanges(false);
       setOriginalData(
@@ -248,6 +278,10 @@ export default function GameTemplateForm({
       }, 1000);
     } catch (error) {
       console.error("Error al guardar la plantilla:", error);
+      trackEvent("template_save_error", {
+        mode: gametemplate ? "edit" : "create",
+        message: error instanceof Error ? error.message : "unknown",
+      });
       toast({
         title: "Error al guardar",
         description: "No se pudo guardar la plantilla. Inténtalo de nuevo.",
@@ -668,7 +702,12 @@ export default function GameTemplateForm({
         {/* Diálogo de confirmación de salida */}
         {showExitConfirmation && (
           <ExitConfirmationDialog
-            onConfirm={confirmExit}
+            onConfirm={() => {
+              trackEvent("template_unsaved_exit", {
+                mode: gametemplate ? "edit" : "create",
+              });
+              confirmExit();
+            }}
             hasUnsavedChanges={hasChanges}
           >
             <div style={{ display: "none" }} />

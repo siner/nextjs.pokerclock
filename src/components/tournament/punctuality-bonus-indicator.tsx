@@ -1,3 +1,5 @@
+"use client";
+
 import { Gift } from "lucide-react";
 
 interface PunctualityBonusIndicatorProps {
@@ -16,60 +18,30 @@ export function PunctualityBonusIndicator({
   punctualityBonus,
   timer,
 }: PunctualityBonusIndicatorProps) {
-  // Solo mostrar el bono si está disponible (durante el primer nivel)
-  if (!punctualityBonusStatus.available) {
-    return null;
-  }
+  if (!punctualityBonusStatus.available) return null;
 
   const timeLeftMinutes = Math.floor(punctualityBonusStatus.timeLeft / 60);
   const timeLeftSeconds = punctualityBonusStatus.timeLeft % 60;
   const timeLeftDisplay = `${timeLeftMinutes.toString().padStart(2, "0")}:${timeLeftSeconds.toString().padStart(2, "0")}`;
 
+  const isExpiring = punctualityBonusStatus.isExpiring && timer > 0;
+
   return (
-    <div
-      className={`mb-4 rounded-lg p-4 text-center ${
-        punctualityBonusStatus.isExpiring
-          ? "animate-pulse border-2 border-orange-400 bg-orange-100"
-          : "border-2 border-green-400 bg-green-100"
-      }`}
-    >
-      <div className="mb-2 flex items-center justify-center gap-2">
-        <span className="text-2xl">
-          <Gift className="size-5 text-green-600" />
-        </span>
-        <h3
-          className={`text-lg font-bold ${
-            punctualityBonusStatus.isExpiring
-              ? "text-orange-700"
-              : "text-green-700"
-          }`}
-        >
-          Bono de Puntualidad Disponible
-        </h3>
+    <div className="rounded-2xl border border-[hsl(var(--accent))]/40 bg-[hsl(var(--accent))]/10 p-4 text-center text-sm text-[hsl(var(--accent))] shadow-[0_24px_80px_-60px_rgba(245,158,11,0.5)]">
+      <div className="mb-2 flex items-center justify-center gap-2 font-semibold text-[hsl(var(--accent))]">
+        <Gift className="h-4 w-4" /> Bono de puntualidad activo
       </div>
-      <p
-        className={`text-sm ${
-          punctualityBonusStatus.isExpiring
-            ? "text-orange-600"
-            : "text-green-600"
-        }`}
-      >
-        {punctualityBonus?.toLocaleString("es-ES")} puntos extra por llegar a
-        tiempo
+      <p className="text-xs text-[hsl(var(--accent))]/90">
+        {punctualityBonus?.toLocaleString("es-ES")} puntos extra para jugadores que se registren durante el primer nivel.
       </p>
-      <p
-        className={`mt-1 text-xs ${
-          punctualityBonusStatus.isExpiring
-            ? "font-bold text-orange-500"
-            : "text-green-500"
-        }`}
-      >
+      <p className="mt-1 text-xs font-medium">
         {timer === 0
-          ? "🚀 ¡Inicia el torneo para activar el bono!"
-          : punctualityBonusStatus.isExpiring
-            ? `⚠️ ¡Expira en ${timeLeftDisplay}!`
+          ? "Inicia el reloj para comenzar la cuenta atrás"
+          : isExpiring
+            ? `¡Últimos ${timeLeftDisplay}!`
             : `Tiempo restante: ${timeLeftDisplay}`}
       </p>
     </div>
   );
 }
+

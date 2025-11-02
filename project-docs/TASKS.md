@@ -259,6 +259,7 @@ _No hay tareas en progreso actualmente_
     - ✅ Cronómetro funcionando correctamente
     - ✅ Corregidos errores de TypeScript (eliminado uso de `any`)
     - ✅ Solucionado problema de compatibilidad con Cloudflare Pages/Edge Runtime
+    - ✅ **CORRECCIÓN CRÍTICA**: Aplicado workaround para error "No such module async_hooks" en Cloudflare Pages
 
 ## Tareas Completadas ✅
 
@@ -459,6 +460,34 @@ _No hay tareas en progreso actualmente_
   - Desglose visual del bono en la interfaz
   - Persistencia completa del estado entre sesiones
 - **Impacto**: Los torneos con bono de puntualidad ahora reflejan correctamente las fichas reales en juego
+
+### ✅ CORRECCIÓN-017: Error "async_hooks" en Cloudflare Pages
+
+- **Fecha**: Enero 2025
+- **Descripción**: Corrección crítica del error "No such module '**next-on-pages-dist**/functions/async_hooks'" en producción de Cloudflare Pages
+- **Problema**: El error se producía al acceder a `/play` en producción, causando un fallo 500 y impidiendo el uso del reloj de poker
+- **Causa Raíz**: Incompatibilidad entre versiones recientes de Vercel y Cloudflare Pages que intentan importar `async_hooks` no disponible en edge runtime
+- **Solución Implementada**:
+  - Añadido `"vercel": "39.1.1"` en devDependencies del package.json
+  - Añadido override `"overrides": { "vercel": "$vercel" }` para forzar la versión específica
+  - Eliminación de node_modules y reinstalación limpia de dependencias
+  - Revertido next.config.mjs a configuración original más simple
+- **Archivos Modificados**:
+  - `package.json` - Workaround de Vercel con versión específica y override
+  - `next.config.mjs` - Revertido a configuración original
+- **Workaround Aplicado**:
+  ```json
+  {
+    "devDependencies": {
+      "vercel": "39.1.1"
+    },
+    "overrides": {
+      "vercel": "$vercel"
+    }
+  }
+  ```
+- **Resultado**: Error completamente resuelto, aplicación funcionando correctamente en Cloudflare Pages
+- **Impacto**: Aplicación totalmente funcional en producción, sin errores de async_hooks
 
 ### ✅ CORRECCIÓN-016: Cronómetro se Queda Parado al Cambiar de Nivel
 

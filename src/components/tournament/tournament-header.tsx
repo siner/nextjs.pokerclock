@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   ResetConfirmationDialog,
@@ -10,6 +12,8 @@ import {
   ArrowLeftIcon,
   HomeIcon,
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface TournamentHeaderProps {
   timer: number;
@@ -26,81 +30,91 @@ export function TournamentHeader({
   onResetGame,
   onShowShortcutsHelp,
 }: TournamentHeaderProps) {
-  return (
-    <div className="flex w-full flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      {/* Navegación */}
-      <div className="flex items-center gap-1 sm:gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => (window.location.href = "/gametemplates")}
-          className="border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
-          title="Volver a plantillas"
-        >
-          <ArrowLeftIcon className="size-4 sm:mr-2" />
-          <span className="hidden sm:inline">Volver</span>
-        </Button>
+  const router = useRouter();
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => (window.location.href = "/")}
-          className="border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
-          title="Ir al inicio"
-        >
-          <HomeIcon className="size-4 sm:mr-2" />
-          <span className="hidden sm:inline">Inicio</span>
-        </Button>
+  const elapsedMinutes = Math.floor(timer / 60);
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+  const formattedElapsed = (() => {
+    if (elapsedMinutes === 0) return "Sin iniciar";
+    if (elapsedHours > 0) {
+      return `${elapsedHours}h ${String(elapsedMinutes % 60).padStart(2, "0")}m`;
+    }
+    return `${elapsedMinutes}m`;
+  })();
+
+  return (
+    <div className="bg-surface flex flex-col gap-4 rounded-2xl border border-border/60 p-4 shadow-[0_28px_90px_-60px_hsl(var(--shadow-soft))] md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-1 flex-col gap-1">
+        <span className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+          Torneo activo
+        </span>
+        <h2 className="text-xl font-semibold text-foreground md:text-2xl">
+          Control del reloj y jugadores
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Jugadores en mesa: {players} · Tiempo transcurrido: {formattedElapsed}
+        </p>
       </div>
 
-      {/* Controles de torneo */}
-      <div className="flex w-full items-center justify-between gap-2 md:w-auto">
-        <div className="flex items-center gap-1 sm:gap-2">
-          {timer > 0 && players > 0 && (
-            <ConfirmationDialog
-              title="Finalizar torneo"
-              description="¿Quieres finalizar el torneo y guardarlo en el historial?"
-              onConfirm={onFinishTournament}
-              variant="info"
-              type="custom"
-              confirmText="Finalizar"
-            >
-              <Button
-                variant="default"
-                size="sm"
-                className="border-green-600 bg-green-600 text-white hover:border-green-700 hover:bg-green-700"
-                title="Finalizar torneo"
-              >
-                <SquareIcon className="size-4 sm:mr-2" />
-                <span className="hidden sm:inline">Finalizar</span>
-              </Button>
-            </ConfirmationDialog>
-          )}
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button asChild variant="ghost" size="sm" className="gap-2">
+          <Link href="/gametemplates">
+            <ArrowLeftIcon className="h-4 w-4" />
+            Plantillas
+          </Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm" className="gap-2">
+          <Link href="/">
+            <HomeIcon className="h-4 w-4" />
+            Inicio
+          </Link>
+        </Button>
 
-          <ResetConfirmationDialog onConfirm={onResetGame}>
-            <Button
-              variant="destructive"
-              size="sm"
-              className="bg-red-600 text-white hover:bg-red-700"
-              title="Reiniciar torneo"
-            >
-              <RotateCcw className="size-4 sm:mr-2" />
-              <span className="hidden sm:inline">Reset</span>
-            </Button>
-          </ResetConfirmationDialog>
-        </div>
-
-        {/* Botón de ayuda de atajos */}
         <Button
           variant="outline"
           size="sm"
           onClick={onShowShortcutsHelp}
-          className="border-slate-300 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-800"
-          title="Ver atajos de teclado (Presiona ?)"
+          className="gap-2"
+          title="Ver atajos de teclado (presiona ?)"
         >
-          <KeyboardIcon className="size-4 sm:mr-2" />
-          <span className="hidden sm:inline">Atajos</span>
+          <KeyboardIcon className="h-4 w-4" />
+          Atajos
         </Button>
+
+        <ResetConfirmationDialog onConfirm={onResetGame}>
+          <Button
+            variant="destructive"
+            size="sm"
+            className="gap-2 bg-red-500 hover:bg-red-600"
+            title="Reiniciar torneo"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Reset
+          </Button>
+        </ResetConfirmationDialog>
+
+        {timer > 0 && players > 0 && (
+          <ConfirmationDialog
+            title="Finalizar torneo"
+            description="¿Quieres finalizar el torneo y guardarlo en el historial?"
+            onConfirm={() => {
+              onFinishTournament();
+              router.push("/history");
+            }}
+            variant="info"
+            type="custom"
+            confirmText="Finalizar"
+          >
+            <Button
+              size="sm"
+              className="gap-2 bg-[hsl(var(--accent))] text-[hsl(var(--banner-foreground))] hover:bg-[hsl(var(--accent))_/0.9]"
+              title="Finalizar torneo"
+            >
+              <SquareIcon className="h-4 w-4" />
+              Finalizar
+            </Button>
+          </ConfirmationDialog>
+        )}
       </div>
     </div>
   );

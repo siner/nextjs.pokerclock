@@ -24,10 +24,17 @@ import {
   TournamentControls,
   TournamentLevels,
   TournamentPrizes,
-  TournamentHeader,
   TournamentStatus,
   PunctualityBonusIndicator,
 } from "@/components/tournament";
+import { trackEvent } from "@/lib/analytics";
+import { Button } from "@/components/ui/button";
+import {
+  ExitConfirmationDialog,
+  ResetConfirmationDialog,
+} from "@/components/ui/confirmation-dialog";
+import { useRouter } from "next/navigation";
+import { ArrowLeftIcon, HomeIcon, KeyboardIcon } from "lucide-react";
 
 const Notification = "/notification.mp3";
 
@@ -35,6 +42,7 @@ export default function PlayGame(params: { template: string }) {
   const { toast } = useToast();
   const { handleError } = useErrorHandler();
   const audioPlayer = useRef<HTMLAudioElement>(null);
+  const router = useRouter();
 
   function playAudio() {
     if (audioPlayer.current) {
@@ -281,12 +289,26 @@ export default function PlayGame(params: { template: string }) {
 
   // Funciones de control
   function togglePlaying() {
-    setPlaying(!playing);
+    const nextState = !playing;
+    setPlaying(nextState);
+    if (game.id) {
+      trackEvent("play_timer_toggled", {
+        playing: nextState,
+        elapsed: timer,
+        level: levelIndex + 1,
+      });
+    }
   }
 
   function goToNextLevel() {
     if (levelIndex < (game.levels?.length || 0) - 1) {
       setLevelIndex(levelIndex + 1);
+      if (game.id) {
+        trackEvent("play_level_changed", {
+          to: levelIndex + 2,
+          reason: "manual_next",
+        });
+      }
       toast({
         title: "Nivel avanzado",
         description: `Avanzado al nivel ${levelIndex + 2}`,
@@ -305,6 +327,12 @@ export default function PlayGame(params: { template: string }) {
   function goToPreviousLevel() {
     if (levelIndex > 0) {
       setLevelIndex(levelIndex - 1);
+      if (game.id) {
+        trackEvent("play_level_changed", {
+          to: levelIndex,
+          reason: "manual_prev",
+        });
+      }
       toast({
         title: "Nivel retrocedido",
         description: `Retrocedido al nivel ${levelIndex}`,
@@ -328,6 +356,11 @@ export default function PlayGame(params: { template: string }) {
       }
       const newTimer = finishedLevelsMinutes * 60;
       setTimer(Math.max(timer, newTimer));
+      if (game.id) {
+        trackEvent("play_jump_to_level", {
+          to: levelIndex + 2,
+        });
+      }
       goToNextLevel();
     }
   }
@@ -345,9 +378,23 @@ export default function PlayGame(params: { template: string }) {
     setPlayers(players + 1);
     setEntries(entries + 1);
     setTotalPlayers(totalPlayers + 1);
+    if (game.id) {
+      trackEvent("play_player_update", {
+        action: "add",
+        players: players + 1,
+        totalPlayers: totalPlayers + 1,
+      });
+      trackEvent("play_entry_update", {
+        action: "add",
+        entries: entries + 1,
+      });
+    }
 
     if (punctualityBonusStatus.available && levelIndex === 0) {
       setPunctualityBonusPlayers(punctualityBonusPlayers + 1);
+      trackEvent("play_punctuality_bonus", {
+        playersWithBonus: punctualityBonusPlayers + 1,
+      });
       toast({
         title: "¡Bono de puntualidad aplicado!",
         description: `Jugador añadido con ${game.punctuality_bonus?.toLocaleString("es-ES")} puntos extra`,
@@ -358,6 +405,13 @@ export default function PlayGame(params: { template: string }) {
   function removePlayer() {
     if (players > 0) {
       setPlayers(players - 1);
+      if (game.id) {
+        trackEvent("play_player_update", {
+          action: "remove",
+          players: players - 1,
+          totalPlayers,
+        });
+      }
       toast({
         title: "Jugador eliminado",
       });
@@ -374,31 +428,71 @@ export default function PlayGame(params: { template: string }) {
       return;
     }
     setEntries(entries + 1);
+    if (game.id) {
+      trackEvent("play_entry_update", {
+        action: "add",
+        entries: entries + 1,
+      });
+    }
   }
 
   function removeEntry() {
     if (entries > 0) {
       setEntries(entries - 1);
+      if (game.id) {
+        trackEvent("play_entry_update", {
+          action: "remove",
+          entries: entries - 1,
+        });
+      }
     }
   }
 
   function addAddon() {
     setAddons(addons + 1);
+    if (game.id) {
+      trackEvent("play_addon_update", {
+        addonType: "simple",
+        action: "add",
+        count: addons + 1,
+      });
+    }
   }
 
   function removeAddon() {
     if (addons > 0) {
       setAddons(addons - 1);
+      if (game.id) {
+        trackEvent("play_addon_update", {
+          addonType: "simple",
+          action: "remove",
+          count: addons - 1,
+        });
+      }
     }
   }
 
   function addDoubleAddon() {
     setDoubleAddons(doubleaddons + 1);
+    if (game.id) {
+      trackEvent("play_addon_update", {
+        addonType: "double",
+        action: "add",
+        count: doubleaddons + 1,
+      });
+    }
   }
 
   function removeDoubleAddon() {
     if (doubleaddons > 0) {
       setDoubleAddons(doubleaddons - 1);
+      if (game.id) {
+        trackEvent("play_addon_update", {
+          addonType: "double",
+          action: "remove",
+          count: doubleaddons - 1,
+        });
+      }
     }
   }
 
@@ -434,6 +528,12 @@ export default function PlayGame(params: { template: string }) {
               currentGame.levels
             );
             setLevelIndex(calculatedLevelIndex);
+
+            trackEvent("play_game_recovered", {
+              templateName: currentGame.name,
+              elapsed: currentGame.elapsed,
+              level: calculatedLevelIndex + 1,
+            });
 
             if (validationResult.recovered) {
               toast({
@@ -509,7 +609,7 @@ export default function PlayGame(params: { template: string }) {
 
   // Cambio de nivel automático
   useEffect(() => {
-    if (!playing || timer === 0 || !game.levels?.length) return;
+    if (!playing || timer === 0 || !game.levels?.length || !game.id) return;
 
     const timeToEndCurrentLevel = game.levels
       .slice(0, levelIndex + 1)
@@ -517,9 +617,16 @@ export default function PlayGame(params: { template: string }) {
 
     if (timer >= timeToEndCurrentLevel && levelIndex < game.levels.length - 1) {
       playAudio();
-      setLevelIndex((prevIndex) => prevIndex + 1);
+      setLevelIndex((prevIndex) => {
+        const nextIndex = prevIndex + 1;
+        trackEvent("play_level_changed", {
+          to: nextIndex + 1,
+          reason: "auto",
+        });
+        return nextIndex;
+      });
     }
-  }, [timer, levelIndex, game.levels, playing]);
+  }, [timer, levelIndex, game.levels, playing, game.id]);
 
   // Notificación de bono de puntualidad
   useEffect(() => {
@@ -547,6 +654,10 @@ export default function PlayGame(params: { template: string }) {
           title: "Error",
           description: "No se encontró la plantilla seleccionada.",
           variant: "destructive",
+        });
+        trackEvent("play_error", {
+          context: "template_not_found",
+          message: `template ${id} not found`,
         });
         return;
       }
@@ -589,12 +700,22 @@ export default function PlayGame(params: { template: string }) {
       setLevelIndex(0);
       localStorage.setItem("game", JSON.stringify(newGame));
 
+      trackEvent("play_template_selected", {
+        templateId: template.id,
+        name: template.name,
+        levels: template.levels.length,
+      });
+
       toast({
         title: "¡Torneo iniciado!",
         description: `Torneo "${template.name}" configurado correctamente.`,
       });
     } catch (error) {
       console.error("Error setting template:", error);
+      trackEvent("play_error", {
+        context: "set_template",
+        message: error instanceof Error ? error.message : "unknown",
+      });
       toast({
         title: "Error",
         description: "No se pudo iniciar el torneo. Inténtalo de nuevo.",
@@ -625,12 +746,20 @@ export default function PlayGame(params: { template: string }) {
       setTemplate({} as GameTemplate);
       localStorage.removeItem("game");
 
+      trackEvent("play_reset", {
+        templateId: game.id,
+      });
+
       toast({
         title: "¡Torneo reiniciado!",
         description: "Puedes seleccionar una nueva plantilla para empezar.",
       });
     } catch (error) {
       console.error("Error resetting game:", error);
+      trackEvent("play_error", {
+        context: "reset_game",
+        message: error instanceof Error ? error.message : "unknown",
+      });
       toast({
         title: "Error",
         description: "No se pudo reiniciar el torneo.",
@@ -712,139 +841,194 @@ export default function PlayGame(params: { template: string }) {
       isLoading={isLoadingTemplate || isResetting}
       text={isLoadingTemplate ? "Iniciando torneo..." : "Reiniciando torneo..."}
     >
-      <div className="w-full">
-        {!game.id && !template.id ? (
-          <div className="flex flex-col items-start gap-4">
-            <Select
-              onValueChange={(e) => {
-                setCurrentTemplate(parseInt(e.toString()));
-              }}
-              disabled={isLoadingTemplate}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Elegir plantilla" />
-              </SelectTrigger>
-              <SelectContent>
-                {gameTemplates.map((template) => (
-                  <SelectItem key={template.id} value={template.id.toString()}>
-                    {template.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {isLoadingTemplate && (
-              <div className="w-full">
-                <SpinnerWithText text="Configurando torneo..." />
-              </div>
-            )}
+      <div className="relative left-1/2 w-screen -translate-x-1/2 px-4 pb-16 sm:px-8 lg:px-12">
+        {game.id && (
+          <div className="pointer-events-none absolute inset-x-0 top-4 flex justify-between px-1 sm:px-6">
+            <div className="pointer-events-auto flex gap-2">
+              <ExitConfirmationDialog
+                hasUnsavedChanges={false}
+                onConfirm={() => router.push("/gametemplates")}
+              >
+                <Button variant="outline" size="sm" className="gap-2">
+                  <ArrowLeftIcon className="h-4 w-4" />
+                  Plantillas
+                </Button>
+              </ExitConfirmationDialog>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => router.push("/")}
+              >
+                <HomeIcon className="h-4 w-4" />
+                Inicio
+              </Button>
+            </div>
+            <div className="pointer-events-auto flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => setShowShortcutsHelp(true)}
+              >
+                <KeyboardIcon className="h-4 w-4" />
+                Atajos
+              </Button>
+              <ResetConfirmationDialog onConfirm={resetGame}>
+                <Button variant="destructive" size="sm">
+                  Resetear
+                </Button>
+              </ResetConfirmationDialog>
+            </div>
           </div>
-        ) : (
-          <div className="flex flex-col items-center space-y-6">
-            {/* Header con controles */}
-            <TournamentHeader
-              onResetGame={resetGame}
-              onFinishTournament={() => {}} // TODO: Implementar función de finalizar
-              onShowShortcutsHelp={() => setShowShortcutsHelp(true)}
-              timer={timer}
-              players={players}
-            />
+        )}
 
-            {/* Título del torneo */}
-            <h1 className="order-1 text-center text-2xl font-bold sm:text-3xl md:order-2 md:text-4xl">
-              {game.name}
-            </h1>
+        <div className="mx-auto max-w-[1680px] space-y-10 pt-14">
+          {!game.id && !template.id ? (
+            <div className="bg-surface rounded-3xl border border-border/60 p-6 shadow-[0_46px_160px_-90px_hsl(var(--shadow-strong))]">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+                    Preparar torneo
+                  </p>
+                  <h2 className="mt-2 text-xl font-semibold text-foreground">
+                    Selecciona una plantilla para comenzar
+                  </h2>
+                </div>
+                <Select
+                  onValueChange={(value) => {
+                    setCurrentTemplate(parseInt(value.toString()));
+                  }}
+                  disabled={isLoadingTemplate}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Elegir plantilla" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {gameTemplates.map((template) => (
+                      <SelectItem
+                        key={template.id}
+                        value={template.id.toString()}
+                      >
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-            <div className="order-2 flex w-full flex-col gap-4 md:order-3 md:flex-row md:items-start md:justify-between md:gap-6">
-              {/* Estadísticas laterales */}
-              <div className="order-2 md:order-1 md:w-1/5">
-                <TournamentStats
-                  players={players}
-                  totalPlayers={totalPlayers}
-                  totalChips={totalChips}
-                  punctualityBonusPlayers={punctualityBonusPlayers}
-                  punctualityBonus={game.punctuality_bonus}
-                />
+                {isLoadingTemplate && (
+                  <div className="w-full">
+                    <SpinnerWithText text="Configurando torneo..." />
+                  </div>
+                )}
               </div>
+            </div>
+          ) : (
+            <div className="space-y-10">
+              <h1 className="text-center text-3xl font-semibold text-foreground md:text-4xl">
+                {game.name}
+              </h1>
 
-              {/* Sección central */}
-              <div className="order-1 md:order-2 md:w-3/5">
-                <div className="space-y-4 md:space-y-6">
-                  {/* Estados del torneo */}
-                  <TournamentStatus
-                    playing={playing}
-                    timer={timer}
-                    entriesStatus={entriesStatus}
-                    game={game}
-                  />
-                  {/* Cronómetro */}
-                  <TournamentTimer
-                    timer={timer}
-                    playing={playing}
-                    clockDisplay={clockDisplay}
-                    onTogglePlaying={togglePlaying}
-                  />
-
-                  {/* Nivel actual */}
-                  <TournamentLevels
+              <div className="grid gap-8 xl:grid-cols-[420px_minmax(0,1fr)_420px]">
+                <div className="space-y-5 xl:pt-6">
+                  <TournamentStats
+                    players={players}
+                    totalPlayers={totalPlayers}
+                    totalChips={totalChips}
                     currentLevel={currentLevel}
-                    nextLevel={nextLevel}
-                    levelIndex={levelIndex}
-                    onJumpToNextLevel={jumpToNextLevel}
+                    punctualityBonusPlayers={punctualityBonusPlayers}
+                    punctualityBonus={game.punctuality_bonus}
                   />
-
-                  {/* Bono de puntualidad */}
                   <PunctualityBonusIndicator
                     punctualityBonusStatus={punctualityBonusStatus}
                     punctualityBonus={game.punctuality_bonus}
                     timer={timer}
                   />
                 </div>
+
+                <div className="space-y-5">
+                  <TournamentStatus
+                    playing={playing}
+                    timer={timer}
+                    entriesStatus={entriesStatus}
+                    game={game}
+                  />
+                  <TournamentTimer
+                    timer={timer}
+                    playing={playing}
+                    clockDisplay={clockDisplay}
+                    onTogglePlaying={togglePlaying}
+                  />
+                  <TournamentLevels
+                    currentLevel={currentLevel}
+                    nextLevel={nextLevel}
+                    levelIndex={levelIndex}
+                    onJumpToNextLevel={jumpToNextLevel}
+                  />
+                </div>
+
+                <div className="space-y-5 xl:pt-6">
+                  <TournamentPrizes
+                    currentPrizeStructure={currentPrizeStructure}
+                    totalPot={totalPot}
+                    fee={fee}
+                    addonPot={addonPot}
+                    realPot={realPot}
+                    entries={entries}
+                    game={game}
+                  />
+                </div>
               </div>
 
-              {/* Información del bote y premios */}
-              <div className="order-3 md:order-3 md:w-1/5">
-                <TournamentPrizes
-                  currentPrizeStructure={currentPrizeStructure}
-                  totalPot={totalPot}
-                  fee={fee}
-                  addonPot={addonPot}
-                  realPot={realPot}
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)]">
+                <TournamentControls
+                  players={players}
                   entries={entries}
-                  game={game}
+                  addons={addons}
+                  doubleAddons={doubleaddons}
+                  entriesStatus={entriesStatus}
+                  addonsEnabled={addonsEnabled}
+                  onAddPlayer={addPlayer}
+                  onRemovePlayer={removePlayer}
+                  onAddEntry={addEntry}
+                  onRemoveEntry={removeEntry}
+                  onAddAddon={addAddon}
+                  onRemoveAddon={removeAddon}
+                  onAddDoubleAddon={addDoubleAddon}
+                  onRemoveDoubleAddon={removeDoubleAddon}
                 />
+
+                <div className="bg-surface-muted/70 flex h-full flex-col justify-between rounded-2xl border border-border/60 p-5 text-sm text-muted-foreground shadow-[0_32px_120px_-80px_hsl(var(--shadow-soft))]">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                      Sugerencia rápida
+                    </p>
+                    <h3 className="mt-2 text-lg font-semibold text-foreground">
+                      Usa el modo pantalla completa
+                    </h3>
+                    <p className="mt-2">
+                      Pulsa <span className="font-semibold">F11</span> (Windows)
+                      o<span className="font-semibold"> Ctrl + Cmd + F</span>{" "}
+                      (macOS) para mostrar solo el reloj en TV o proyector.
+                    </p>
+                  </div>
+                  <p className="mt-4 text-xs text-muted-foreground">
+                    Mantén este dispositivo como control remoto y abre la misma
+                    URL en otro para visualizar únicamente la cuenta atrás.
+                  </p>
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Controles de gestión */}
-            <div className="order-4 w-full">
-              <TournamentControls
-                players={players}
-                entries={entries}
-                addons={addons}
-                doubleAddons={doubleaddons}
-                entriesStatus={entriesStatus}
-                addonsEnabled={addonsEnabled}
-                onAddPlayer={addPlayer}
-                onRemovePlayer={removePlayer}
-                onAddEntry={addEntry}
-                onRemoveEntry={removeEntry}
-                onAddAddon={addAddon}
-                onRemoveAddon={removeAddon}
-                onAddDoubleAddon={addDoubleAddon}
-                onRemoveDoubleAddon={removeDoubleAddon}
-              />
-            </div>
-          </div>
-        )}
+          <audio ref={audioPlayer} src={Notification} />
 
-        <audio ref={audioPlayer} src={Notification} />
-
-        {/* Diálogo de ayuda de atajos de teclado */}
-        <KeyboardShortcutsHelp
-          open={showShortcutsHelp}
-          onOpenChange={setShowShortcutsHelp}
-        />
+          {/* Diálogo de ayuda de atajos de teclado */}
+          <KeyboardShortcutsHelp
+            open={showShortcutsHelp}
+            onOpenChange={setShowShortcutsHelp}
+          />
+        </div>
       </div>
     </LoadingOverlay>
   );

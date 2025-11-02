@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +46,7 @@ import {
 } from "@/lib/predefined-templates";
 import { GameTemplate } from "@/types";
 import { SafeStorage } from "@/lib/error-handling";
+import { trackEvent } from "@/lib/analytics";
 
 interface PredefinedTemplatesDialogProps {
   children: React.ReactNode;
@@ -64,6 +65,12 @@ export function PredefinedTemplatesDialog({
     useState<PredefinedTemplate | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (open) {
+      trackEvent("templates_predefined_open");
+    }
+  }, [open]);
 
   // Filtrar plantillas
   const filteredTemplates = useMemo(() => {
@@ -112,6 +119,10 @@ export function PredefinedTemplatesDialog({
       const success = SafeStorage.setItem("gameTemplates", updatedTemplates);
 
       if (success) {
+        trackEvent("templates_predefined_added", {
+          templateName: predefinedTemplate.name,
+          mode: showPreview ? "preview" : "dialog",
+        });
         toast({
           title: "¡Plantilla agregada!",
           description: `"${predefinedTemplate.name}" se agregó a tu colección.`,
@@ -553,6 +564,10 @@ export function QuickTemplateButton({
         const success = SafeStorage.setItem("gameTemplates", updatedTemplates);
 
         if (success) {
+          trackEvent("templates_predefined_added", {
+            templateName: popularTemplate.name,
+            mode: "quick",
+          });
           toast({
             title: "¡Plantilla agregada!",
             description: `"${popularTemplate.name}" se agregó a tu colección.`,

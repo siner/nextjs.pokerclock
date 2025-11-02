@@ -1,295 +1,288 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  CircleAlertIcon,
-  PlusIcon,
-  SettingsIcon,
-  PlayIcon,
+  ArrowRightIcon,
+  ClipboardCheckIcon,
+  Clock3Icon,
+  DatabaseIcon,
   HistoryIcon,
+  Layers3Icon,
+  PlayIcon,
+  ShieldIcon,
+  SparklesIcon,
   TrophyIcon,
   UsersIcon,
-  ClockIcon,
-  DollarSignIcon,
-  ArrowRightIcon,
-  SparklesIcon,
 } from "lucide-react";
+
+const actions = [
+  {
+    title: "Crear Plantilla",
+    description:
+      "Diseña niveles, premios y reglas personalizadas en cuestión de minutos.",
+    href: "/gametemplates/create",
+    icon: SparklesIcon,
+    cta: "Nueva plantilla",
+  },
+  {
+    title: "Gestionar Plantillas",
+    description: "Organiza tu biblioteca y carga estructuras predefinidas.",
+    href: "/gametemplates",
+    icon: Layers3Icon,
+    cta: "Abrir panel",
+  },
+  {
+    title: "Iniciar Partida",
+    description:
+      "Lanza el reloj y comparte la cuenta atrás con tu grupo en segundos.",
+    href: "/play",
+    icon: PlayIcon,
+    cta: "Ir al reloj",
+  },
+  {
+    title: "Historial & Stats",
+    description:
+      "Consulta resultados, exporta informes y comparte resúmenes con tu grupo.",
+    href: "/history",
+    icon: HistoryIcon,
+    cta: "Revisar partidas",
+  },
+];
+
+const features = [
+  {
+    title: "Cronómetro claro",
+    description:
+      "Cuenta atrás gigante, avisos sonoros y visuales perfectos para TV o proyector.",
+    icon: Clock3Icon,
+  },
+  {
+    title: "Gestión sencilla",
+    description:
+      "Añade jugadores, recompras y add-ons con botones grandes y accesibles.",
+    icon: UsersIcon,
+  },
+  {
+    title: "Premios automáticos",
+    description:
+      "Calcula el reparto en función del bote real y guarda tus configuraciones favoritas.",
+    icon: TrophyIcon,
+  },
+  {
+    title: "Datos locales",
+    description:
+      "Todo se queda en tu navegador. Exporta copias de seguridad cuando quieras.",
+    icon: DatabaseIcon,
+  },
+  {
+    title: "Temas a elección",
+    description:
+      "Escoge el ambiente que mejor encaje con tu partida: clásico, nocturno o tapete.",
+    icon: ShieldIcon,
+  },
+  {
+    title: "Listo sin internet",
+    description:
+      "Ideal para partidas en casa: funciona incluso si te quedas sin conexión.",
+    icon: ClipboardCheckIcon,
+  },
+];
+
+const quickSteps = [
+  {
+    step: "1",
+    title: "Configura tu estructura",
+    description:
+      "Define niveles, premios y políticas de entradas desde una plantilla o desde cero.",
+  },
+  {
+    step: "2",
+    title: "Lanza el torneo",
+    description:
+      "Selecciona la plantilla, proyecta el reloj y controla el ritmo desde cualquier dispositivo local.",
+  },
+  {
+    step: "3",
+    title: "Guarda y analiza",
+    description:
+      "Exporta resultados, comparte resúmenes con tu grupo y prepara la siguiente edición.",
+  },
+];
+
+const stats = [
+  { label: "Usuarios en casa", value: "Miles" },
+  { label: "Plantillas guardadas", value: "∞" },
+  { label: "Modo offline", value: "Siempre" },
+];
 
 export default function Home() {
   return (
-    <main className="container mx-auto flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
-      <div className="w-full px-4 py-8 sm:px-6 sm:py-12">
-        {/* Hero Section */}
-        <div className="mb-12 text-center sm:mb-16">
-          <div className="mb-6">
-            <Badge variant="secondary" className="mb-4 px-4 py-2 text-sm">
-              <SparklesIcon className="mr-2 size-4" />
-              Gestión Profesional de Torneos
-            </Badge>
-            <h1 className="mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-4xl font-bold text-transparent sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
-              Poker Clock
+    <main className="flex flex-1 flex-col gap-12 pb-12">
+      <section className="bg-surface relative overflow-hidden rounded-3xl border border-border/60 shadow-[0_40px_120px_-70px_hsl(var(--shadow-strong))]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 rounded-bl-[200px] bg-[radial-gradient(120%_80%_at_80%_10%,hsl(var(--accent)_/_0.35),transparent_65%)] lg:block"
+        />
+        <div className="relative grid gap-10 px-6 py-12 sm:px-10 sm:py-16 lg:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="flex flex-col gap-6">
+            <span className="bg-surface-muted w-fit rounded-full border border-border/50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+              Reloj de poker
+            </span>
+            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+              El reloj de poker perfecto para tus partidas entre amigos
             </h1>
-            <p className="mx-auto max-w-4xl px-4 text-base leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg md:text-xl lg:text-2xl">
-              La herramienta definitiva para organizar y gestionar torneos de
-              poker profesionales. Cronómetro avanzado, gestión de plantillas y
-              seguimiento completo.
+            <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Diseña plantillas en minutos, proyecta el reloj en grande y
+              controla entradas, recompras y premios sin complicaciones. Todo
+              guardado en tu navegador para la próxima noche de poker.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Button asChild size="lg">
+                <Link href="/play" className="flex items-center gap-2">
+                  Ir al reloj
+                  <ArrowRightIcon className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/gametemplates">Gestionar plantillas</Link>
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="bg-surface-muted/80 rounded-xl border border-border/70 px-4 py-3 text-left shadow-[0_20px_40px_-38px_hsl(var(--shadow-soft))]"
+                >
+                  <span className="text-lg font-semibold text-foreground">
+                    {stat.value}
+                  </span>
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-surface-muted/60 flex flex-col justify-between gap-6 rounded-2xl border border-border/60 p-6 shadow-[0_30px_80px_-50px_hsl(var(--shadow-soft))]">
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold text-foreground">
+                Pensado para clubes y ligas
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                • Modo TV con tipografía enorme y contraste alto.
+                <br />• Botonera optimizada para pantallas táctiles.
+                <br />• Guardado automático y recuperación ante errores.
+              </p>
+            </div>
+            <div className="bg-surface rounded-xl border border-border/60 p-4">
+              <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
+                Mantén el control
+              </p>
+              <h3 className="mt-2 text-base font-semibold text-foreground">
+                Atajos rápidos y estados claros en cada fase del torneo
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Pausa y reanuda con la barra espaciadora, ajusta niveles al
+                vuelo y recibe avisos sonoros antes de cada subida de ciegas.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {actions.map((action) => (
+          <div
+            key={action.title}
+            className="bg-surface group flex flex-col justify-between rounded-2xl border border-border/60 p-6 shadow-[0_30px_80px_-65px_hsl(var(--shadow-soft))] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_40px_120px_-70px_hsl(var(--shadow-strong))]"
+          >
+            <div className="flex flex-1 flex-col gap-4">
+              <span className="bg-surface-muted flex h-11 w-11 items-center justify-center rounded-xl border border-border/50 text-[hsl(var(--accent))]">
+                <action.icon className="h-5 w-5" />
+              </span>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-foreground">
+                  {action.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {action.description}
+                </p>
+              </div>
+            </div>
+            <Button
+              asChild
+              variant="ghost"
+              className="mt-6 w-fit gap-2 px-0 text-sm"
+            >
+              <Link
+                href={action.href}
+                className="group/link inline-flex items-center gap-2"
+              >
+                {action.cta}
+                <ArrowRightIcon className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />
+              </Link>
+            </Button>
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        {features.map((feature) => (
+          <div
+            key={feature.title}
+            className="bg-surface flex flex-col gap-3 rounded-2xl border border-border/50 p-5 shadow-[0_24px_80px_-70px_hsl(var(--shadow-soft))]"
+          >
+            <span className="bg-surface-muted flex h-10 w-10 items-center justify-center rounded-lg border border-border/50 text-[hsl(var(--accent))]">
+              <feature.icon className="h-5 w-5" />
+            </span>
+            <h3 className="text-base font-semibold text-foreground">
+              {feature.title}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {feature.description}
             </p>
           </div>
-        </div>
+        ))}
+      </section>
 
-        {/* Navigation Cards */}
-        <div className="mb-12 grid grid-cols-1 gap-4 sm:mb-16 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-          {/* Crear Plantilla */}
-          <Card className="group flex flex-col border-0 bg-gradient-to-br from-green-50 to-emerald-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:from-green-950 dark:to-emerald-900">
-            <CardHeader className="flex-1 pb-4 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 transition-transform group-hover:scale-110 dark:bg-green-900">
-                <PlusIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
-              </div>
-              <CardTitle className="text-green-800 dark:text-green-200">
-                Crear Plantilla
-              </CardTitle>
-              <CardDescription className="text-green-600 dark:text-green-400">
-                Diseña estructuras de torneo personalizadas con niveles, premios
-                y configuraciones avanzadas
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <Button
-                asChild
-                className="w-full bg-green-600 text-white hover:bg-green-700"
-              >
-                <Link
-                  href="/gametemplates/create"
-                  className="flex items-center justify-center gap-2"
-                >
-                  Crear Nueva
-                  <ArrowRightIcon className="h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Gestionar Plantillas */}
-          <Card className="group flex flex-col border-0 bg-gradient-to-br from-blue-50 to-cyan-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:from-blue-950 dark:to-cyan-900">
-            <CardHeader className="flex-1 pb-4 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 transition-transform group-hover:scale-110 dark:bg-blue-900">
-                <SettingsIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <CardTitle className="text-blue-800 dark:text-blue-200">
-                Gestionar Plantillas
-              </CardTitle>
-              <CardDescription className="text-blue-600 dark:text-blue-400">
-                Administra, edita y organiza todas tus plantillas de torneo en
-                un solo lugar
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <Button
-                asChild
-                variant="outline"
-                className="w-full border-blue-300 text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:text-blue-300"
-              >
-                <Link
-                  href="/gametemplates"
-                  className="flex items-center justify-center gap-2"
-                >
-                  Ver Plantillas
-                  <ArrowRightIcon className="h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Empezar Partida */}
-          <Card className="group flex flex-col border-0 bg-gradient-to-br from-purple-50 to-pink-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:from-purple-950 dark:to-pink-900">
-            <CardHeader className="flex-1 pb-4 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 transition-transform group-hover:scale-110 dark:bg-purple-900">
-                <PlayIcon className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-              </div>
-              <CardTitle className="text-purple-800 dark:text-purple-200">
-                Empezar Partida
-              </CardTitle>
-              <CardDescription className="text-purple-600 dark:text-purple-400">
-                Inicia un torneo con cronómetro profesional, gestión de
-                jugadores y seguimiento en tiempo real
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <Button
-                asChild
-                className="w-full bg-purple-600 text-white hover:bg-purple-700"
-              >
-                <Link
-                  href="/play"
-                  className="flex items-center justify-center gap-2"
-                >
-                  Iniciar Torneo
-                  <ArrowRightIcon className="h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Ver Historial */}
-          <Card className="group flex flex-col border-0 bg-gradient-to-br from-amber-50 to-orange-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:from-amber-950 dark:to-orange-900">
-            <CardHeader className="flex-1 pb-4 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 transition-transform group-hover:scale-110 dark:bg-amber-900">
-                <HistoryIcon className="h-8 w-8 text-amber-600 dark:text-amber-400" />
-              </div>
-              <CardTitle className="text-amber-800 dark:text-amber-200">
-                Ver Historial
-              </CardTitle>
-              <CardDescription className="text-amber-600 dark:text-amber-400">
-                Consulta estadísticas, resultados y análisis detallados de todos
-                tus torneos anteriores
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <Button
-                asChild
-                variant="outline"
-                className="w-full border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300"
-              >
-                <Link
-                  href="/history"
-                  className="flex items-center justify-center gap-2"
-                >
-                  Ver Historial
-                  <ArrowRightIcon className="h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Features Section */}
-        <div className="mb-12 sm:mb-16">
-          <h2 className="mb-6 text-center text-2xl font-bold text-slate-800 dark:text-slate-200 sm:mb-8 sm:text-3xl">
-            Características Principales
-          </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-4">
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-                <ClockIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h3 className="mb-2 font-semibold text-slate-800 dark:text-slate-200">
-                Cronómetro Profesional
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Control preciso de niveles con notificaciones sonoras y visuales
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                <TrophyIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="mb-2 font-semibold text-slate-800 dark:text-slate-200">
-                Gestión de Premios
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Cálculo automático de premios y estructuras dinámicas
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900">
-                <UsersIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h3 className="mb-2 font-semibold text-slate-800 dark:text-slate-200">
-                Control de Jugadores
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Seguimiento de entradas, add-ons y estadísticas en tiempo real
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
-                <DollarSignIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-              </div>
-              <h3 className="mb-2 font-semibold text-slate-800 dark:text-slate-200">
-                Cálculo de Botes
-              </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Gestión automática de comisiones, add-ons y botes extra
-              </p>
-            </div>
+      <section className="bg-surface rounded-3xl border border-border/60 p-6 shadow-[0_40px_120px_-80px_hsl(var(--shadow-soft))] sm:p-10">
+        <div className="mb-6 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-muted-foreground">
+              Guía rápida
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold text-foreground sm:text-3xl">
+              Listo para usar en tres pasos
+            </h2>
           </div>
         </div>
-
-        {/* Quick Start Guide */}
-        <Card className="mb-8 border-0 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 sm:mb-12">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl text-slate-800 dark:text-slate-200 sm:text-2xl">
-              Guía Rápida
-            </CardTitle>
-            <CardDescription className="text-slate-600 dark:text-slate-400">
-              Sigue estos pasos para organizar tu primer torneo
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
-              <div className="text-center">
-                <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-green-600 font-bold text-white">
-                  1
-                </div>
-                <h3 className="mb-2 font-semibold text-slate-800 dark:text-slate-200">
-                  Crear Plantilla
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Define la estructura de tu torneo: niveles, premios y
-                  configuraciones
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 font-bold text-white">
-                  2
-                </div>
-                <h3 className="mb-2 font-semibold text-slate-800 dark:text-slate-200">
-                  Iniciar Partida
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Selecciona tu plantilla y comienza el torneo con el cronómetro
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-amber-600 font-bold text-white">
-                  3
-                </div>
-                <h3 className="mb-2 font-semibold text-slate-800 dark:text-slate-200">
-                  Gestionar Torneo
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Controla jugadores, niveles y finaliza para guardar en el
-                  historial
-                </p>
-              </div>
+        <div className="grid gap-6 sm:grid-cols-3">
+          {quickSteps.map((step) => (
+            <div key={step.step} className="flex flex-col gap-3">
+              <span className="bg-surface-muted flex h-10 w-10 items-center justify-center rounded-full border border-border/50 text-sm font-semibold text-foreground">
+                {step.step}
+              </span>
+              <h3 className="text-base font-semibold text-foreground">
+                {step.title}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {step.description}
+              </p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Alert Section */}
-        <div className="mx-auto max-w-2xl">
-          <Alert className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
-            <CircleAlertIcon className="h-4 w-4 text-amber-600" />
-            <AlertTitle className="text-amber-800 dark:text-amber-200">
-              Información Importante
-            </AlertTitle>
-            <AlertDescription className="text-amber-700 dark:text-amber-300">
-              Toda la información se guarda en el almacenamiento local de tu
-              navegador. Los datos no se envían a ningún servidor, garantizando
-              tu privacidad. Recuerda hacer copias de seguridad exportando tus
-              plantillas e historial.
-            </AlertDescription>
-          </Alert>
+          ))}
         </div>
-      </div>
+      </section>
+
+      <section className="bg-surface-muted/80 space-y-4 rounded-2xl border border-border/50 p-6 text-sm text-muted-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+        <p>
+          Todo se guarda en tu navegador. Recomendamos exportar plantillas e
+          historial con regularidad para tener copias de seguridad y
+          compartirlas con tu grupo.
+        </p>
+        <p>
+          ¿Buscas algo más avanzado? Estamos construyendo una herramienta
+          profesional para clubes y circuitos privados. Muy pronto compartiremos
+          más detalles.
+        </p>
+      </section>
     </main>
   );
 }

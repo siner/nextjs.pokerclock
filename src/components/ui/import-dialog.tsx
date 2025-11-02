@@ -43,6 +43,7 @@ import {
 } from "@/lib/import-utils";
 import { GameTemplate } from "@/types";
 import { ButtonLoading } from "@/components/ui/loading";
+import { trackEvent } from "@/lib/analytics";
 
 interface ImportDialogProps {
   children: React.ReactNode;
@@ -126,12 +127,21 @@ export function ImportDialog({
       setStep("results");
 
       if (result.success) {
+        trackEvent("templates_import_success", {
+          count: result.imported,
+          skipped: result.skipped,
+          mode: "dialog",
+        });
         toast({
           title: "¡Importación exitosa!",
           description: `Se importaron ${result.imported} plantillas correctamente.`,
         });
         onImportComplete?.(result);
       } else {
+        trackEvent("templates_import_error", {
+          mode: "dialog",
+          message: result.errors.join(", "),
+        });
         toast({
           title: "Error en la importación",
           description: result.errors.join(", "),
@@ -139,6 +149,10 @@ export function ImportDialog({
         });
       }
     } catch (error) {
+      trackEvent("templates_import_error", {
+        mode: "dialog",
+        message: error instanceof Error ? error.message : "unknown",
+      });
       toast({
         title: "Error crítico",
         description: "Error inesperado durante la importación.",
@@ -685,12 +699,21 @@ export function QuickImportButton({
       });
 
       if (result.success) {
+        trackEvent("templates_import_success", {
+          count: result.imported,
+          skipped: result.skipped,
+          mode: "quick",
+        });
         toast({
           title: "¡Importación exitosa!",
           description: `Se importaron ${result.imported} plantillas correctamente.`,
         });
         onImportComplete?.(result);
       } else {
+        trackEvent("templates_import_error", {
+          mode: "quick",
+          message: result.errors.join(", "),
+        });
         toast({
           title: "Error en la importación",
           description: result.errors.join(", "),
@@ -698,6 +721,10 @@ export function QuickImportButton({
         });
       }
     } catch (error) {
+      trackEvent("templates_import_error", {
+        mode: "quick",
+        message: error instanceof Error ? error.message : "unknown",
+      });
       toast({
         title: "Error crítico",
         description: "Error inesperado durante la importación.",
